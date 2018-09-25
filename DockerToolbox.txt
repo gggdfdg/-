@@ -61,4 +61,6 @@ $
 sudo sed -i "s|EXTRA_ARGS='|EXTRA_ARGS='--registry-mirror=加速地址 |g" /var/lib/boot2docker/profile
 27：然后重启default 
 28：docker-machine restart default
+29：参考文献地址
+https://www.cnblogs.com/canger/p/9028723.html
 
