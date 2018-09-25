@@ -1,3 +1,4 @@
+--------------------------docker镜像地址都在https://hub.docker.com/------------------------------------------------
 1：在windows下安装DockerToolbox，这个我这边自己有压缩包，直接解压就用。
 2：DockerToolbox依赖VirtualBox，所以安装下，我这边有安装版本VirtualBox-5.2.18-124319-Win。
 3：解压DockerToolbox，文件目录下有start.sh。
