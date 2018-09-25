@@ -1,0 +1,32 @@
+----------------------------在此之前线用命令docker-machine restart default启动docker虚拟机---------------------------------------------
+1：用SecureCRT登陆docker 主机地址192.168.99.100
+用户名：docker 
+密码： tcuser
+2：拉取CentOS镜像
+3：docker pull centos
+4：docker images可以看到centos下载好了（查看到imageId）
+5：创建centos
+6：docker run -d -p 5000:22 -p 8888:80 --name centos74 --privileged=true centos /usr/sbin/init
+7：用容器名进入容器命令
+8：docker exec -it centos74 /bin/bash
+9：5-8步骤是为了解决在centos里面没权限执行systemctl命令的问题
+----------------------------开始安装mariadb---------------------------------------------
+10：卸载之前存在的mariaDb
+11：rpm -qa | grep Maria*
+12：yum -y remove mari*
+13：安装新的mariadb
+14：开始新的安装, 创建MariaDB.repo文件
+15：vi /etc/yum.repos.d/MariaDB.repo
+16：插入以下内容保存
+# MariaDB 10.2.4 CentOS repository list - created 2017-05-05 16:13 UTC
+# http://downloads.mariadb.org/mariadb/repositories/
+[mariadb]
+name = MariaDB
+baseurl = http://yum.mariadb.org/10.2.4/centos7-amd64
+gpgkey=https://yum.mariadb.org/RPM-GPG-KEY-MariaDB
+gpgcheck=1
+17：yum -y install MariaDB-server MariaDB-client
+18：开始安装
+19：参考文献
+https://www.cnblogs.com/river2005/p/6813618.html
+https://blog.csdn.net/weipeng19861130/article/details/79006555
