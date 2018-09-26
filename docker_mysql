@@ -22,15 +22,15 @@ sudo mount -t cgroup -o none,name=systemd cgroup /sys/fs/cgroup/systemd
 13：安装新的mariadb
 14：开始新的安装, 创建MariaDB.repo文件
 15：vi /etc/yum.repos.d/MariaDB.repo
-16：插入以下内容保存
-# MariaDB 10.2.4 CentOS repository list - created 2017-05-05 16:13 UTC
+16：插入以下内容保存(也可以自己去寻找适合的版本https://downloads.mariadb.org/mariadb/repositories/#distro=CentOS&distro_release=centos7-ppc64le--centos7&version=10.3)
+# MariaDB 10.3 CentOS repository list - created 2018-09-26 02:09 UTC
 # http://downloads.mariadb.org/mariadb/repositories/
 [mariadb]
 name = MariaDB
-baseurl = http://yum.mariadb.org/10.2.4/centos7-amd64
+baseurl = http://yum.mariadb.org/10.3/centos7-ppc64le
 gpgkey=https://yum.mariadb.org/RPM-GPG-KEY-MariaDB
 gpgcheck=1
-17：yum -y install MariaDB-server MariaDB-client
+17：yum -y install mariadb-server mariadn-client
 18：开始安装
 19：参考文献
 https://www.cnblogs.com/river2005/p/6813618.html
