@@ -5,6 +5,11 @@
 2：拉取CentOS镜像
 3：docker pull centos
 4：docker images可以看到centos下载好了（查看到imageId）
+--------------------------
+docker run --privileged=true之前要执行如下语句，不然会报错（cgroups: cannot find cgroup mount destination: unknown.）
+sudo mkdir /sys/fs/cgroup/systemd
+sudo mount -t cgroup -o none,name=systemd cgroup /sys/fs/cgroup/systemd
+--------------------------
 5：创建centos
 6：docker run -d -p 5000:22 -p 8888:80 --name centos74 --privileged=true centos /usr/sbin/init
 7：用容器名进入容器命令
