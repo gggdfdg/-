@@ -34,7 +34,21 @@ gpgcheck=1
 18：开始安装
 19：systemctl start mysql
 20：mysql -uroot -p
-19：参考文献
+21：安装apache
+yum install httpd
+systemctl start httpd
+22：安装php
+yum install php
+yum install php-mysql php-gd php-imap php-ldap php-odbc php-pear php-xml php-xmlrpc
+systemctl restart httpd
+23：测试
+vi /var/www/html/info.php
+<?php
+    phpinfo();
+?>
+24：访问
+http://192.168.99.100:8888/info.php
+25：参考文献
 https://www.cnblogs.com/river2005/p/6813618.html
 https://blog.csdn.net/weipeng19861130/article/details/79006555
 https://www.cnblogs.com/MrEgg1013/p/8438988.html
