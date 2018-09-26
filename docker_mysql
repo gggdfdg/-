@@ -21,17 +21,19 @@ sudo mount -t cgroup -o none,name=systemd cgroup /sys/fs/cgroup/systemd
 12：yum -y remove mari*
 13：安装新的mariadb
 14：开始新的安装, 创建MariaDB.repo文件
-15：vi /etc/yum.repos.d/MariaDB.repo
+15：vim /etc/yum.repos.d/mariadb.repo（国外的源太慢了，我用了国内的，参考下http://mirrors.ustc.edu.cn/help/mariadb.html）
 16：插入以下内容保存(也可以自己去寻找适合的版本https://downloads.mariadb.org/mariadb/repositories/#distro=CentOS&distro_release=centos7-ppc64le--centos7&version=10.3)
-# MariaDB 10.3 CentOS repository list - created 2018-09-26 02:09 UTC
+# MariaDB 10.2 CentOS repository list - created 2017-07-03 06:59 UTC
 # http://downloads.mariadb.org/mariadb/repositories/
 [mariadb]
 name = MariaDB
-baseurl = http://yum.mariadb.org/10.3/centos7-ppc64le
-gpgkey=https://yum.mariadb.org/RPM-GPG-KEY-MariaDB
+baseurl = https://mirrors.ustc.edu.cn/mariadb/yum/10.2/centos7-amd64
+gpgkey=https://mirrors.ustc.edu.cn/mariadb/yum/RPM-GPG-KEY-MariaDB
 gpgcheck=1
-17：yum -y install mariadb-server mariadn-client
+17：yum install MariaDB-server MariaDB-client
 18：开始安装
+19：systemctl start mysql
+20：mysql -uroot -p
 19：参考文献
 https://www.cnblogs.com/river2005/p/6813618.html
 https://blog.csdn.net/weipeng19861130/article/details/79006555
