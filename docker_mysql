@@ -37,7 +37,7 @@ gpgcheck=1
 21：安装apache
 yum install httpd
 systemctl start httpd
-22：安装php
+22：安装php这里一般是系统php5.4的版本，如果要7的话去看看我的docker_php
 yum install php
 yum install php-mysql php-gd php-imap php-ldap php-odbc php-pear php-xml php-xmlrpc
 systemctl restart httpd
