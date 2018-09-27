@@ -60,3 +60,19 @@ php -v
 10：查看扩展
 php -m
 11：systemctl restart httpd
+12：配置下虚拟主机
+13：一般httpd.conf里面有IncludeOptional conf.d/*.conf类似这个的，代表包含的配置，一般在最后一行
+14：去conf.d/底下新建个conf（例如httpd-vhosts.conf）
+15：内容类似
+<VirtualHost *:80>
+DocumentRoot "您的php访问的文件入口路径"
+ServerName 主机服务名（随便取）
+<Directory "您的php访问的文件入口路径">
+         Options FollowSymLinks
+         AllowOverride All
+         Require all granted  //给权限不然403等
+</Directory>
+ErrorLog "logs/oneym.dev-error.log"
+CustomLog "logs/oneym.dev-access.log" common //这里都是日志
+</VirtualHost>
+16：systemctl restart httpd（记得把项目放上去到相应的路径底下）
