@@ -8,3 +8,4 @@ docker rmi 镜像id -------删除镜像
 docker run -d -p 5000:22 --name 新建容器名称 --privileged=true 镜像id或镜像名称 /usr/sbin/init ------创建容器
 docker exec -it 容器名称 /bin/bash  ------进入容器
 docker commit 容器id 镜像名称 ------提交容器成镜像
+docker rm -f `docker ps -a -q` ------删除所有容器
