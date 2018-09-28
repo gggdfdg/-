@@ -1,0 +1,93 @@
+1：Centos7系统安装yum遇到的问题failure: repodata/repomd.xml from base: [Errno 256] No more mirrors to try. http:
+2：出现这个问题要因地制宜，看看哪里具体错误，网上有个方法很搞笑，直接重装yum（所以我给讲讲重装yum），方法如下
+3：查看centos7.2系统本身所安装的yum依赖包
+4：rpm -qa|grep yum（应该会出现安装的列表3个：fastestmirror和parser和yum）
+yum-plugin-fastestmirror-1.1.31-34.el7.noarch
+yum-metadata-parser-1.1.4-10.el7.x86_64
+yum-3.4.3-132.el7.centos.0.1.noarch
+5：卸载yum包
+rpm -e yum-plugin-fastestmirror-1.1.31-34.el7.noarch --nodeps（卸载fastestmirror）
+rpm -e yum-metadata-parser-1.1.4-10.el7.x86_64 --nodeps（卸载parser）
+rpm -e yum-3.4.3-132.el7.centos.0.1.noarch --nodeps（卸载yum）
+6：进入centos镜像网站找到自己对应系统需要的yum包
+cat /etc/redhat-release（查看centos版本）
+如下（7.2.1511）：CentOS Linux release 7.2.1511 (Core) 
+file /bin/ls
+如下（x86-64）：/bin/ls: ELF 64-bit LSB executable, x86-64, version 1 (SYSV), dynamically linked (uses shared libs), for GNU/Linux 2.6.32, BuildID[sha1]=aa7ff68f13de25936a098016243ce57c3c982e06, stripped
+7：下载yum依赖包（去http://vault.centos.org/7.2.1511/os/x86_64/Packages/找到对应的包fastestmirror，parser，yum，这个地址底下会有很多包，需要耐心查看，应该要滚动到超级底部才能看到我们需要的包）
+wget http://vault.centos.org/7.2.1511/os/x86_64/Packages/yum-plugin-fastestmirror-1.1.31-34.el7.noarch.rpm
+wget http://vault.centos.org/7.2.1511/os/x86_64/Packages/yum-metadata-parser-1.1.4-10.el7.x86_64.rpm
+wget http://vault.centos.org/7.2.1511/os/x86_64/Packages/yum-3.4.3-132.el7.centos.0.1.noarch.rpm
+8：rpm -ivh yum-*
+9：更新centos系统的repo文件（/etc/yum.repos.d/）（改目录底下重要的文件有CentOS-Base.repo，CentOS-Debuginfo.repo，CentOS-Sources.repo，CentOS-Vault.repo，epel.repo， ）
+先备份之前的CentOS-Base.repo， mv /etc/yum.repos.d/CentOS-Base.repo /etc/yum.repos.d/CentOS-Base.repo.backup
+然后去http://mirrors.ustc.edu.cn/help/centos.html 找到对应版本的CentOS-Base.repo
+我的是7，找到了这个
+# CentOS-Base.repo
+#
+# The mirror system uses the connecting IP address of the client and the
+# update status of each mirror to pick mirrors that are updated to and
+# geographically close to the client.  You should use this for CentOS updates
+# unless you are manually picking other mirrors.
+#
+# If the mirrorlist= does not work for you, as a fall back you can try the
+# remarked out baseurl= line instead.
+#
+#
+
+[base]
+name=CentOS-$releasever - Base
+#mirrorlist=http://mirrorlist.centos.org/?release=$releasever&arch=$basearch&repo=os
+baseurl=https://mirrors.ustc.edu.cn/centos/$releasever/os/$basearch/
+gpgcheck=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7
+
+#released updates
+[updates]
+name=CentOS-$releasever - Updates
+# mirrorlist=http://mirrorlist.centos.org/?release=$releasever&arch=$basearch&repo=updates
+baseurl=https://mirrors.ustc.edu.cn/centos/$releasever/updates/$basearch/
+gpgcheck=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7
+
+#additional packages that may be useful
+[extras]
+name=CentOS-$releasever - Extras
+# mirrorlist=http://mirrorlist.centos.org/?release=$releasever&arch=$basearch&repo=extras
+baseurl=https://mirrors.ustc.edu.cn/centos/$releasever/extras/$basearch/
+gpgcheck=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7
+
+#additional packages that extend functionality of existing packages
+[centosplus]
+name=CentOS-$releasever - Plus
+# mirrorlist=http://mirrorlist.centos.org/?release=$releasever&arch=$basearch&repo=centosplus
+baseurl=https://mirrors.ustc.edu.cn/centos/$releasever/centosplus/$basearch/
+gpgcheck=1
+enabled=0
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7
+复制到CentOS-Base.repo（vim CentOS-Base.repo 然后paste）
+10： yum clean all
+11： yum makecache
+12：如果有这种错误（如下）
+Loaded plugins: fastestmirror
+base                                                                                                                                                     | 3.6 kB  00:00:00     
+epel                                                                                                                                                     | 3.2 kB  00:00:00     
+extras                                                                                                                                                   | 3.4 kB  00:00:00     
+http://www.cert.org/forensics/repository/centos/cert/7/x86_64/repodata/repomd.xml: [Errno 14] HTTPS Error 301 - Moved Permanently
+Trying other mirror.
+13：说明在extras的时候报错，这是第三方包的错误，找到http://www.cert.org/forensics在哪个包配置。干掉那个包
+14：我找到了包，我的是cert-forensics-tools.repo，我直接mv cert-forensics-tools.repo cert-forensics-tools.repo.backup
+15：然后yum makecache可以了
+16：如果有如下错误：
+Loaded plugins: fastestmirror
+epel/x86_64/metalink                                                                                                                                                  | 3.4 kB  00:00:00
+epel                                                                                                                                                                  | 4.4 kB  00:00:00
+http://epel.mirror.digitalpacific.com.au/7/x86_64/repodata/repomd.xml: [Errno -1] repomd.xml does not match metalink for epel
+说明在epel错误了
+找到epel.repo  
+我的解决方法很暴力
+找到[epel]的模块
+然后把metalink的行注释掉
+然后放开baseurl
+17：然后yum makecache可以了
