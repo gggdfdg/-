@@ -1,0 +1,2 @@
+systemctl start mysql   -----------启动mysql
+systemctl enable mysqld   -----------开机启动mysql
