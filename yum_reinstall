@@ -92,3 +92,5 @@ http://epel.mirror.digitalpacific.com.au/7/x86_64/repodata/repomd.xml: [Errno -1
 然后放开baseurl
 17：然后yum makecache可以了
 18：具体模块报错，找具体模块，
+19：参考文献：
+https://blog.csdn.net/homewm/article/details/80642851
