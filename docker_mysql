@@ -48,7 +48,10 @@ vi /var/www/html/info.php
 ?>
 24：访问
 http://192.168.99.100:8888/info.php
-25：参考文献
+25：底下是mysqldump导出
+mysqldump -u用户名 -p密码 数据库名 > 数据库名.sql
+#/usr/local/mysql/bin/mysqldump -uroot -p xxx > xxx.sql
+26：参考文献
 https://www.cnblogs.com/river2005/p/6813618.html
 https://blog.csdn.net/weipeng19861130/article/details/79006555
 https://www.cnblogs.com/MrEgg1013/p/8438988.html
