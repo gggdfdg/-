@@ -1,0 +1,37 @@
+----------------------------------------------------搭建svn服务器----------------------------------------------------
+1：移除之前的svn（yum remove subversion）
+2：yum install subversion（安装svn）
+3：svnserve --version（查看版本，成功就安装成功）
+4：创建svn目录（mkdir /var/svn ）
+5：创建svn版本库（mkdir /var/svn/repositories ）
+6：创建svn文件目录，理论可以创建多个，只要启动的时候指定路径就可以启动不同的svn（svnadmin create /var/svn/test）
+7：这时候目录test应该会有这些文件
+subversion目录说明
+db目录：就是所有版本控制的数据存放文件。
+hooks目录：放置hook脚本文件的目录。
+locks目录：用来放置subversion见艰苦锁定数据的目录，用来追踪存取文件库的客户端。
+format文件：是一个文本文件，里面只放了一个整数，表示当前文件库配置的版本号。
+conf目录：是这个仓库的配置文件（仓库的用户访问账号、权限等）。
+8：进入conf，该svn配置文件（cd conf/）
+9：这时候conf底下应该有这些文件
+authz文件是权限控制文件
+passwd是帐号密码文件
+svnserve.conf SVN服务配置文件
+10：vi passwd（设置密码）
+在[users]块中添加用户和密码，格式：帐号=密码，如zjm=zjm，绝对不能有空格，全部要顶格写
+11：vi authz（设置权限 ）
+在末尾添加如下代码：
+[/]
+zjm=rw   　　说明： (r：读，w：写)
+12：vi svnserve.con（修改svnserve.conf文件）
+打开下面的几个注释：
+anon-access = read #匿名用户可读
+auth-access = write #授权用户可写
+password-db = passwd #使用哪个文件作为账号文件
+authz-db = authz #使用哪个文件作为权限文件
+realm =/var/svn/repositories # 认证空间名，版本库所在目录
+13：svnserve -d -r /var/svn/test --listen-port=3690（启动svn，test）
+14：killall svnserve（这个可以杀掉svn）
+15：用ps -ef |grep svn 查看服务是否开启。
+16：如果是docker记得端口映射（-p 3679:3690）
+17：在Windows上用TorwoiseSVN测试（新建文件，checkout ，地址是xxx.xxx:3679）
