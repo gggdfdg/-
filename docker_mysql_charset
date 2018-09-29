@@ -1,0 +1,46 @@
+安装好mysql后需要设置字符集，默认的字符集是拉丁（我的maria是10.2）
+1：用whereis mysql 找到mysql的路径，一般在/usr/share/mysql
+2：mysql目录底下有mysql.server，这是我们systemctl start mysql调用的路口
+3：vim mysql.server 到里面你会找到 conf=/etc/my.cnf，说明我们的mysql配置文件在这里
+4：进入vim /etc/my.cnf 我找到了!includedir /etc/my.cnf.d，说明配置在这目录底下
+5：cd /etc/my.cnf.d 进行ls，里面有mysql-clients.cnf  server.cnf两个文件，一个是客户端，一个是服务器的配置
+6：进入server.cnf，里面有[server][mysqld]两个section，我们分别改成这样
+[server]
+character-set-server=utf8mb4
+# this is only for the mysqld standalone daemon
+[mysqld]
+character-set-server=utf8mb4
+collation-server=utf8mb4_general_ci
+7：进入mysql-clients.cnf，里面有[mysql]的section，我们改成如下
+[mysql]
+default-character-set=utf8mb4
+8：systemctl restart mysql重启
+9：mysql -uroot -p
+10：在use数据库之前，用status查询下全局数据库的字符集
+Server characterset:    utf8mb4
+Db     characterset:    utf8mb4
+Client characterset:    utf8mb4
+Conn.  characterset:    utf8mb4
+看看哪个不是utf8mb4就改哪个
+用
+set character_set_connection=utf8mb4;
+set character_set_database=utf8mb4;
+set character_set_results=utf8mb4;
+set character_set_server=utf8mb4;
+set character_set_system=utf8mb4;
+set collation_connection=utf8mb4;
+set collation_database=utf8mb4;
+set collation_server=utf8mb4;
+具体选择哪个
+11：然后就可以创建数据库
+create database mydb character set utf8mb4;
+12：alter database mydb default character set = utf8mb4;（这可以修改字符集）
+13：use mydb;source /root/mydb.sql （导入数据库）
+14：mysql查看字符集还有如下两方法
+show variables like 'collation_%';
+show variables like 'character_set_%';
+15：查看普通日志
+SHOW VARIABLES LIKE "general_log%"; 
+启用普通日志
+SET GLOBAL general_log = 'ON';
+慢日志的名字是slow_query_log，启用慢日志只要换名字
