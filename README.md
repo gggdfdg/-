@@ -6,7 +6,7 @@ docker_cmd-----------------------------docker的常用命令（查看容器，�
 
 
 
-docker_mysql-----------------------------docker 拉个centos系统，启动，下载mariaDb，安装mariaDb（国内镜像），启动，安装php（php5.4）（php太旧，建议不安装这个）
+docker_mysql-----------------------------docker 拉个centos系统，启动，下载mariaDb，安装mariaDb（国内镜像），启动，安装php（php5.4）（php太旧，建议不安装这个）,mysqldump 
 
 
 
