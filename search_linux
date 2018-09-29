@@ -1,2 +1,4 @@
 whereis mysql -----------------------查找执行路径
 ps -aux | grep port  -----------------------查找端口的进程
+find / -name httpd.conf -----------------------在/下面查找文件httpd.conf
+
