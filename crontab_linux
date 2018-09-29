@@ -1,0 +1,14 @@
+写批处理方法有两种--------------------------------------------------------------------第一种
+1：/etc/cron.d下面一般有0hourly这个文件
+2：这个文件写法就是批处理的规范，如下：
+01 * * * * root run-parts /etc/cron.hourly
+3：我们可以在/etc/cron.d新建个xxx.cron
+4：内容填上如下：（apache是用户，cd /usr/local/phpproject/idol_admin && php think ChangeRemind是命令，代表进入那个xxx,执行ChangeRemind.php,>>后面是输出日志的地方）
+54 16 * * * apache cd /usr/local/phpproject/xxx && php think ChangeRemind  >> /var/log/task/idol_StarRankChangeRemind.log 2>&1
+5：wq！下，这样每天16：54会自己跑
+写批处理方法有两种--------------------------------------------------------------------第二种
+1：crontab -e进入编辑，自己粘贴上（然后wq！）
+54 16 * * * apache cd /usr/local/phpproject/xxx && php think ChangeRemind  >> /var/log/task/idol_StarRankChangeRemind.log 2>&1
+2：crontab -l查看批处理
+3：这样也可以的
+
