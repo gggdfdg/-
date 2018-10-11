@@ -1,0 +1,5 @@
+----------------------thinkphp5.0------------------------------
+模型初始化----------$model = new Model();
+开启事务-----------$model->getQuery()->startTrans();
+回滚---------------$model->getQuery()->rollback();
+事务提交-----------$model->getQuery()->commit();
