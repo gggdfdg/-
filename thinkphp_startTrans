@@ -3,3 +3,42 @@
 开启事务-----------$model->getQuery()->startTrans();
 回滚---------------$model->getQuery()->rollback();
 事务提交-----------$model->getQuery()->commit();
+--------------------回滚问题---------------------------------
+CREATE TABLE   test (
+	id varchar(32)  PRIMARY KEY, 
+	name varchar(32), 
+	create_time datetime, 
+	create_user varchar(32) ,
+	address varchar(20) NOT NULL ,
+	remark varchar(100)
+) ENGINE = InnoDB DEFAULT CHARSET=utf8
+这样的表是支持回滚，因为引擎是InnoDB
+-------------------其他引擎----------------------------------------
+下面介绍其他引擎
+ISAM：索引顺序訪问法（Index Sequential Access Mode）
+
+       ISAM是一个定义明白且历经时间考验的数据表格管理方法，它在设计之时就考虑到数据库被查询的次数要远大于更新的次数。因此，ISAM运行读取操作的速度非常快，并且不占用大量的内存和存储资源。
+
+ISAM的两个主要不足之处在于，它不支持事务处理。也不可以容错。假设你的硬盘崩溃了，那么数据文件就无法恢复了。假设你正在把ISAM用在关键任务应用程序里，那就必须常常备份你全部的实时数据，通过其复制特性，MYSQL可以支持这种备份应用程序。
+MyISAM：Mysql的默认存储引擎
+
+
+
+       MyISAM是MySQL的ISAM扩展格式和缺省的数据库引擎。除了提供ISAM里所没有的索引和字段管理的大量功能，MyISAM还使用一种表格锁定的机制。来优化多个并发的读写操作，其代价是你须要常常执行OPTIMIZE TABLE命令，来恢复被更新机制所浪费的空间。MyISAM另一些实用的扩展，比如用来修复数据库文件的MyISAMCHK工具和用来恢复浪费空间的 MyISAMPACK工具。MYISAM强调了高速读取操作，这可能就是为什么MySQL受到了WEB开发如此青睐的主要原因：在WEB开发中你所进行的大量数据操作都是读取操作。所以，大多数虚拟主机提供商和INTERNET平台提供商仅仅同意使用MYISAM格式。MyISAM格式的一个重要缺陷就是不能在表损坏后恢复数据。
+
+HEAP：
+
+       HEAP同意仅仅驻留在内存里的暂时表格。驻留在内存里让HEAP要比ISAM和MYISAM都快，可是它所管理的数据是不稳定的。并且假设在关机之前没有进行保存。那么全部的数据都会丢失。在数据行被删除的时候，HEAP也不会浪费大量的空间。
+
+HEAP表格在你须要使用SELECT表达式来选择和操控数据的时候很实用。
+
+要记住，在用完表格之后就删除表格。
+InnoDB：
+
+       InnoDB数据库引擎都是造就MySQL灵活性的技术的直接产品。这项技术就是MYSQL++ API。在使用MYSQL的时候，你所面对的每个挑战差点儿都源于ISAM和MyISAM数据库引擎不支持事务处理（transaction process）也不支持外来键。虽然要比ISAM和 MyISAM引擎慢非常多，可是InnoDB包含了对事务处理和外来键的支持。这两点都是前两个引擎所没有的。假设你的设计须要这些特性中的一者或者两者，那你就要被迫使用INNODB和BERKLEY引擎中的一个了，我们经常使用的是InnoDB。
+
+       InnoDB给MySQL提供了具有提交、回滚和崩溃恢复能力的事务安全（ACID兼容）存储引擎。
+
+InnoDB锁定在行级而且也在SELECT语句提供一个Oracle风格一致的非锁定读，这些特色添加了多用户部署和性能。没有在InnoDB中扩大锁定的须要。由于在InnoDB中行级锁定适合很小的空间。
+
+InnoDB也支持FOREIGN KEY强制。在SQL查询中。你能够自由地将InnoDB类型的表与其他MySQL的表的类型混合起来，甚至在同一个查询中也能够混合。这是mysql官方的描写叙述。
