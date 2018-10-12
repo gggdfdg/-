@@ -1,0 +1,69 @@
+thinkphp有自带的校验方法
+1：规则
+// 验证规则默认提示信息
+-----------------------------
+protected static $typeMsg = [
+    'require'     => ':attribute require', //必须
+    'number'      => ':attribute must be numeric', //数字
+    'integer'     => ':attribute must be integer', //整数
+    'float'       => ':attribute must be float',  //浮点数
+    'boolean'     => ':attribute must be bool',  //布尔值
+    'email'       => ':attribute not a valid email address',  //邮箱
+    'mobile'      => ':attribute not a valid mobile',  //手机
+    'array'       => ':attribute must be a array',  //数组
+    'accepted'    => ':attribute must be yes,on or 1',  //布尔正值
+    'date'        => ':attribute not a valid datetime', //日期
+    'file'        => ':attribute not a valid file',   //文件
+    'image'       => ':attribute not a valid image',  //图片
+    'alpha'       => ':attribute must be alpha',   
+    'alphaNum'    => ':attribute must be alpha-numeric',
+    'alphaDash'   => ':attribute must be alpha-numeric, dash, underscore',
+    'activeUrl'   => ':attribute not a valid domain or ip',
+    'chs'         => ':attribute must be chinese',
+    'chsAlpha'    => ':attribute must be chinese or alpha',
+    'chsAlphaNum' => ':attribute must be chinese,alpha-numeric',
+    'chsDash'     => ':attribute must be chinese,alpha-numeric,underscore, dash',
+    'url'         => ':attribute not a valid url',   //链接
+    'ip'          => ':attribute not a valid ip', //ip
+    'dateFormat'  => ':attribute must be dateFormat of :rule',
+    'in'          => ':attribute must be in :rule', //范围
+    'notIn'       => ':attribute be notin :rule',  //不在范围
+    'between'     => ':attribute must between :1 - :2', //区间
+    'notBetween'  => ':attribute not between :1 - :2', //不在区间
+    'length'      => 'size of :attribute must be :rule', //长度
+    'max'         => 'max size of :attribute must be :rule', //最大值
+    'min'         => 'min size of :attribute must be :rule', //最小值
+    'after'       => ':attribute cannot be less than :rule', 
+    'before'      => ':attribute cannot exceed :rule',
+    'expire'      => ':attribute not within :rule',
+    'allowIp'     => 'access IP is not allowed',
+    'denyIp'      => 'access IP denied',
+    'confirm'     => ':attribute out of accord with :2',
+    'different'   => ':attribute cannot be same with :2',
+    'egt'         => ':attribute must greater than or equal :rule', //大于等于
+    'gt'          => ':attribute must greater than :rule',  //大于
+    'elt'         => ':attribute must less than or equal :rule',  //小于等于
+    'lt'          => ':attribute must less than :rule', //小于
+    'eq'          => ':attribute must equal :rule', //等于
+    'unique'      => ':attribute has exists', //唯一（数据库）
+    'regex'       => ':attribute not conform to the rules', //正则
+    'method'      => 'invalid Request method', 
+    'token'       => 'invalid token',
+    'fileSize'    => 'filesize not match',
+    'fileExt'     => 'extensions to upload is not allowed',
+    'fileMime'    => 'mimetype to upload is not allowed',
+];
+--------------------- 
+
+2：写法例子（商品必须，币为数字（包扣小数和整数），必须大于0，库存为整数，最小值1）
+ public $validate = [
+        ['goods_id|商品', 'require'],
+        ['coin|币', 'require|number|gt:0'],
+        ['stock|库存', 'require|integer|min:1'],
+    ];
+ $data = $this->request->param();
+ $result = $this->validate($data, $this->validate);
+ if (true !== $result) {
+     return $this->ajaxReturnError($result);
+ }
+ 
