@@ -5,7 +5,7 @@ thinkphp有自带的校验方法
 protected static $typeMsg = [
     'require'     => ':attribute require', //必须
     'number'      => ':attribute must be numeric', //数字
-    'integer'     => ':attribute must be integer', //整数
+    'integer'     => ':attribute must be integer', //整数（最大是9个9）
     'float'       => ':attribute must be float',  //浮点数
     'boolean'     => ':attribute must be bool',  //布尔值
     'email'       => ':attribute not a valid email address',  //邮箱
