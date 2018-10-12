@@ -50,3 +50,8 @@ docker_subversion-----------------------------svn服务器的搭建
 
 
 thinkphp_startTrans---------------------------thinkphp事务开启，回滚，提交
+
+
+thinkphp_validata---------------------------thinkphp自带的校验
+
+
