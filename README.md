@@ -58,3 +58,5 @@ thinkphp_validata---------------------------thinkphp自带的校验
 php_two_digist------------------------------php保留两位小数
 
 
+github_idea------------------------------配置github连接到idea
+
