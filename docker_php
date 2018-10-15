@@ -76,3 +76,4 @@ ErrorLog "logs/oneym.dev-error.log"
 CustomLog "logs/oneym.dev-access.log" common //这里都是日志
 </VirtualHost>
 16：systemctl restart httpd（记得把项目放上去到相应的路径底下）
+17：phph项目路径切记不能有中文
