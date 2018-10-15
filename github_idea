@@ -1,0 +1,16 @@
+1： 首先打开 WebStorm （idea），依次点击File -> Settings... 打开系统设置面板
+2： 接下来有两种授权方
+3： 搜索 github ，如果auth type选择 Token 则点击 Create API Token，输入用户名密码。（github那边的）
+4： 搜索 github ，如果auth type选择 PassWord，输入用户名密码。（github那边的）
+5： 一定要test看可不可以连接上
+6： 搜索Git，选择git的path，我的配置是这样的（D:\soft\Git\bin\git.exe）
+7： test下看可不可以用
+8： 因为我们本地 Git 仓库和 GitHub 仓库之间的传输是通过 SSH 加密的，所以我们需要配置验证信息。
+9： 使用以下命令生成 SSH Key：ssh-keygen -t rsa -C "youremail@example.com"
+10：上面的命令在git底下的git-bash执行，不是我们的命令框哦
+11：后面的 youremail@youremail.com 为你在 GitHub 上注册的邮箱，运行命令后会要求确认路径和输入密码，这里 我们无需输入，一路回车就行。成功的话会在C:\Users\Administrator\ 下生成.ssh 文件夹，进去，打开 id_rsa.pub，复制里面的Key。
+12：打开 GitHub 上，如下图所示，进入Account -> Settings 。
+13：点击 SSH and GPG keys，然后点击 New SSH key 按钮，在Key填写刚刚生成的SSH Key，Title 处填写标题，可以随便填，Key 处粘贴刚才生成的 key。添加成功。
+14：以输入以下命令验证是否成功
+15：ssh -T git@github.com（git-bash底下执行）
+16：Hi yourname! You've successfully authenticated, but GitHub does not provide shell access.代表你配置成功了
