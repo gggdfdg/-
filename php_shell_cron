@@ -8,7 +8,7 @@
 echo 10 10 * * * apache cd /usr/local/xxx/yyy && php think AutoDabangCommand >> tt.py,
 这种会每次执行后换行，如果在php的exec中执行一定要在内容前后加"，例如本题是
 exec('echo "10 10 * * * apache cd /usr/local/xxx/yyy && php think AutoDabangCommand" >> tt.py'),不然，肯定会直接调用AutoDabangCommand，
-并把结果写入tt.py
+并把结果写入tt.py，内容中的apache是linux用户名
 
 5：sed -i '/0 10,20 \* \* \* php think xxx/d' tt.py,这个可以删除tt.py的0 10,20 * * * php think xxx那一行。本题中的\*，是转义*而已
 
