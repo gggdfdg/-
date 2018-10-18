@@ -1,0 +1,2 @@
+yum install rsyslog------------------------------安装rsyslog（系统日志管理，包扣cron的日志）
+systemctl start rsyslog------------------------------启动rsyslog（系统日志管理，包扣cron的日志）
