@@ -63,3 +63,5 @@ github_idea------------------------------配置github连接到idea
 php_shell_cron---------------------------touch文件无法用fopen 修改（php），thinkphp的model循环保存，一个要重新new一个model，sed -i在下一行加内容，必需文件不能是空的，echo 逐行加内容，php的exec方法一定要在内容加引号，sed -i删除匹配内容的行，sudo chown root:root授权和安装sudo，让apache用户可以执行sudo
 
 linux_date------------------------------linux时区转化，时区时间查询，设置北京时间，东八区
+
+rsyslog_linux---------------------------rsyslog系统日志安装，linux必备，cron日志生成
