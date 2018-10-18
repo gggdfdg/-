@@ -64,3 +64,8 @@ sudo sed -i "s|EXTRA_ARGS='|EXTRA_ARGS='--registry-mirror=加速地址 |g" /var/
 29：参考文献地址
 https://www.cnblogs.com/canger/p/9028723.html
 
+
+30：docker乱码解决
+locale -a看有没有en_US.utf8，有的话直接执行如下
+export LC_ALL=en_US.utf8
+
