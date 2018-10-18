@@ -1,0 +1,9 @@
+ date -R -------------查看时区和时间
+ Thu, 18 Oct 2018 08:03:15 +0000-----------------这样的代表是UTC时间，与格林尼治平均时(GMT, Greenwich Mean Time)一样，都与英国伦敦的本地时相同，少北京八个时区，所以北京时间是Thu, 18 Oct 2018 16:03:15 +0800（0800代表东八区）
+ 
+ date---------------------查看时间
+ 
+ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime---------------------设置时间为北京时间东八区
+
+编辑/etc/sysconfig/clock中 ZONE="Asia/Shanghai"--------------------------设置时间为北京时间东八区
+ 
