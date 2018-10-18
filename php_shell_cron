@@ -1,12 +1,20 @@
 1：用linux进行touch的文件在php中 $TxtRes = fopen ("/etc/cron.d/xxx.cron","w+")这种方式是无法进行修改的，甚至直接报错
+
 2：thinkphp一个Model，如果放在foreach外面，里面循环用Model->save()，只能保存一条记录
+
 3：sed -i '$a 相应的内容' tt.py  这种方式只有在文件tt.py有内容的时候，才会在下一行加上相应的内容，而空的话没办法，只有用echo方式。
-4：echo 加内容是在下一行echo 10 10 * * * apache cd /usr/local/xxx/yyy && php think AutoDabangCommand >> tt.py,这种会每次执行后换行，如果php一定要在10 10
-前面加上",AutoDabangCommand后面加上"。
-5：sed -i '/0 10,20 \* \* \* php think xxx/d' tt.py,这个可以删除tt.py的0 10,20 * * * php think xxx那一行。
-6：php如果创建文件例如cron的话，会生成所属用户是apache的文件，这样的cron是无法执行的，需要改成root，最快的方式跳过权限可以创建在runtime，然后
+
+4：echo 可以逐行加内容 命令如下
+echo 10 10 * * * apache cd /usr/local/xxx/yyy && php think AutoDabangCommand >> tt.py,
+这种会每次执行后换行，如果在php的exec中执行一定要在内容前后加"，例如本题是
+exec('echo "10 10 * * * apache cd /usr/local/xxx/yyy && php think AutoDabangCommand" >> tt.py'),不然，肯定会直接调用AutoDabangCommand，
+并把结果写入tt.py
+
+5：sed -i '/0 10,20 \* \* \* php think xxx/d' tt.py,这个可以删除tt.py的0 10,20 * * * php think xxx那一行。本题中的\*，是转义*而已
+
+6：php代码如果创建文件例如cron的话，会生成所属用户是apache的文件，这样的cron是无法执行的，需要改成root，最快的方式跳过权限可以创建在runtime，然后
 rename($this->file,$this->newfile);
 exec('sudo chown root:root '.$this->newfile,$result, $status);
 移动和授权，当然授权需要改/etc/sudoers,将Defaults requiretty注释，加上apache ALL = NOPASSWD: ALL
-这样就可以了
+这样就可以了，如果没有sudo命令话，需要用yum install sudo
 
