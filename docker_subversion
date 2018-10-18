@@ -23,7 +23,7 @@ svnserve.conf SVN服务配置文件
 在末尾添加如下代码：
 [/]
 zjm=rw   　　说明： (r：读，w：写)
-12：vi svnserve.con（修改svnserve.conf文件）
+12：vi svnserve.conf（修改svnserve.conf文件）
 打开下面的几个注释：
 anon-access = read #匿名用户可读（这里如果设置read，客户端查看日志会报错：there has been a problem contacting the server，这时候anon-access = none才有用）
 auth-access = write #授权用户可写
