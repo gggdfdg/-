@@ -1,4 +1,4 @@
-DockerToolbox_windows-----------------------------windows下安装docker（需要支持vt），修改配置，启动，SecureCRT连接docker，设置磁盘移动，镜像加速器，重启docker，linux（centos）安装docker更简单，yum install docker就可以（systemctl start docker）
+DockerToolbox_windows-----------------------------windows下安装docker（需要支持vt），修改配置，启动，SecureCRT连接docker，设置磁盘移动，镜像加速器，重启docker，linux（centos）安装docker更简单，yum install docker就可以（systemctl start docker），docker乱码解决
 
 
 
