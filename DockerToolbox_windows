@@ -68,4 +68,6 @@ https://www.cnblogs.com/canger/p/9028723.html
 30：docker乱码解决
 locale -a看有没有en_US.utf8，有的话直接执行如下
 export LC_ALL=en_US.utf8
+没有的话就执行
+localedef -v -c -i en_US -f UTF-8 en_US.UTF-8
 
