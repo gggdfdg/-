@@ -64,3 +64,5 @@ tar zcf test.tar -C test/ .
 sz FileName.tar-----------------导出FileName.tar
 rz-----------------导入
 
+7za x phpMyAdmin-3.3.8.1-all-languages.7z -r -o./  ---------7za解压方式，完整保留文件夹原样-o后面没空格，后面是目标文件
+
