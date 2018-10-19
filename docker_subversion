@@ -1,6 +1,6 @@
 ----------------------------------------------------搭建svn服务器----------------------------------------------------
 1：移除之前的svn（yum remove subversion）
-2：yum install subversion（安装svn）
+2：yum install subversion（安装svn，包扣客户端）
 3：svnserve --version（查看版本，成功就安装成功）
 4：创建svn目录（mkdir /var/svn ）
 5：创建svn版本库（mkdir /var/svn/repositories ）
@@ -36,3 +36,6 @@ realm =/var/svn/repositories # 认证空间名，版本库所在目录
 16：如果是docker记得端口映射（-p 3679:3690）
 17：在Windows上用TorwoiseSVN测试（新建文件，checkout ，地址是xxx.xxx:3679）
 18：svn 日志文件显示时间为1970-01-01 No data ----------最终解决办法（设置 anon-access = none）
+19：svn更新下来的文件，如果有windos上传的txt文件，会乱码，可以用如下方法查看
+iconv -f gbk -t utf8 shujujiegou.txt > shujujiegou.txt.utf8
+这样可以将txt，转成txt.utf8，用txt.utf8查看就是正常的
