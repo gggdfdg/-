@@ -39,3 +39,6 @@ realm =/var/svn/repositories # 认证空间名，版本库所在目录
 19：svn更新下来的文件，如果有windos上传的txt文件，会乱码，可以用如下方法查看
 iconv -f gbk -t utf8 shujujiegou.txt > shujujiegou.txt.utf8
 这样可以将txt，转成txt.utf8，用txt.utf8查看就是正常的
+20：------------------------------------------svn命令--------------------------------------------------------------
+21：svn checkout path(path是服务器的目录)，path如svn://192.168.148.77:3679/
+22：
