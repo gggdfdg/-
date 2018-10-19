@@ -12,6 +12,8 @@ sudo mount -t cgroup -o none,name=systemd cgroup /sys/fs/cgroup/systemd
 --------------------------
 5：创建centos
 6：docker run -d -p 5000:22 -p 8888:80 --name centos74 --privileged=true centos /usr/sbin/init
+如果出现如下错误：/usr/bin/docker-current: Error response from daemon: driver failed programming external connectivity on endpoint centos74 (e12483c179b0b462ee907161f367484fef193f37fc1851d4d938d2ca2da81605):  (iptables failed: iptables --wait -t nat -A DOCKER -p tcp -d 0/0 --dport 8888 -j DNAT --to-destination 172.17.0.2:80 ! -i docker0: iptables: No chain/target/match by that name.
+记得重启docker
 7：用容器名进入容器命令
 8：docker exec -it centos74 /bin/bash
 9：5-8步骤是为了解决在centos里面没权限执行systemctl命令的问题
