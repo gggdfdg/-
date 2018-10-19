@@ -1,0 +1,14 @@
+1：一个纯净的centos系统从docker拉下来后（docker images可以查看镜像），需要创建个容器执行如下命令：
+a：sudo mkdir /sys/fs/cgroup/systemd（创建权限组）
+b：sudo mount -t cgroup -o none,name=systemd cgroup /sys/fs/cgroup/systemd（挂载）
+c：docker run -d -p 8888:80 --name 自己定义的容器名 --privileged=true 自己的仓库名:自己的标签 /usr/sbin/init（标签和仓库名可以从docker images查出来）
+d：如果出现如下错误：/usr/bin/docker-current: Error response from daemon: driver failed programming external connectivity on endpoint centos74 (e12483c179b0b462ee907161f367484fef193f37fc1851d4d938d2ca2da81605):  (iptables failed: iptables --wait -t nat -A DOCKER -p tcp -d 0/0 --dport 8888 -j DNAT --to-destination 172.17.0.2:80 ! -i docker0: iptables: No chain/target/match by that name.
+记得重启docker
+2：容器创建好后（docker ps -a可以查看容器列表，一般是create状态），这时候如果状态是exit状态就先启动容器（docker start 容器id），如果是create状态就up启动（docker exec -it 自定义的容器名 /bin/bash）
+3：纯净的centos有的时间是格林时间，要转成北京时间（ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime）
+4：安装crontabs
+a：yum -y install vixie-cron（一般是有，无需安装）
+b：yum -y install crontabs（一般没有，鞍部安装）
+c：systemctl start crontabs（启动）
+5：
+
