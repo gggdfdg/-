@@ -8,7 +8,9 @@ d：如果出现如下错误：/usr/bin/docker-current: Error response from daem
 3：纯净的centos有的时间是格林时间，要转成北京时间（ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime）
 4：安装crontabs
 a：yum -y install vixie-cron（一般是有，无需安装）
-b：yum -y install crontabs（一般没有，鞍部安装）
+b：yum -y install crontabs（一般没有，鞍部安装）开机启动（systemctl enable crond），启动（systemctl start crond）
 c：systemctl start crontabs（启动）
-5：
-
+5：设置字符集（export LC_ALL=en_US.utf8）
+6：安装vim（yum install vim）
+7：安装rsyslog（yum install rsyslog），开机启动（systemctl enable rsyslog），启动（systemctl start rsyslog）
+8：安装解压，压缩软件（yum install unar）（可能无资源包）
