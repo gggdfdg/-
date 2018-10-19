@@ -42,4 +42,17 @@ iconv -f gbk -t utf8 shujujiegou.txt > shujujiegou.txt.utf8
 20：如果SVN遇到Can't convert string from 'UTF-8' to native encoding，需要export LC_ALL=en_US.utf8 下
 20：------------------------------------------svn命令--------------------------------------------------------------
 21：svn checkout path(path是服务器的目录)，path如svn://192.168.148.77:3679/
-22：
+22：svn add filename（如果是新加的文件，必须先增加到版本库）
+例如：svn add test.cpp
+23：svn commit -m "注释" [-N] [--no-unlock] PATH(如果选择了保持锁，就使用--no-unlock开关)（移动到版本库，新加或者修改都必须移交）
+例如：svn commit -m "注释" test.cpp
+简写：svn ci
+24：svn update -r 版本号 path
+svn update 更新当前目录以及子目录下的所有文件到最新版本
+svn upate -r 200 test.cpp 将版本库中的test.cpp还原到版本200
+简写 svn up
+25：svn delete path -m "注释"
+例如: svn delete svn://192.168.1.1/pro/domain/test.cpp -m "delete test file"
+或者直接svn delete test.php 然后再svn ci -m 'delete test file'，推荐使用这种，这个svn ci -m 'delete test file'就是提交到版本库-m后面是注释
+简写： svn (del、remove、rm)
+
