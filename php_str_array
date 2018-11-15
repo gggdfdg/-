@@ -4,6 +4,8 @@ rtrim("dsdas,",",")代表去掉字符串最右边的逗号，ltrim("dsdas,",",")
 
 str_split("xxxx")代表切割xxxx成["x","x","x","x"],如果有参数就是按参数切割，例如str_split("xxxx",",")是按逗号切割，结果是["xxxx"]
 
+preg_split('/(?<!^)(?!$)/u',"王方法");str_split切割会乱码，就用该方法切割
+
 array_unique(['xx','yyy','xx'])结果是['xx','yyy']，是系统带的去重函数
 
 implode('', ['xx','xu']);结果是xxxu和explode是相反的，一个是切割成数组，一个是合并成字符串。
