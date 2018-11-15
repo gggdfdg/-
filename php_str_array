@@ -7,3 +7,10 @@ str_split("xxxx")代表切割xxxx成["x","x","x","x"],如果有参数就是按�
 array_unique(['xx','yyy','xx'])结果是['xx','yyy']，是系统带的去重函数
 
 implode('', ['xx','xu']);结果是xxxu和explode是相反的，一个是切割成数组，一个是合并成字符串。
+
+$descDir = dirname(\ROOT_PATH . "/upload/xxx.php");代表取得上一层目录\ROOT_PATH . "/upload的本地路径
+
+is_dir($descDir) ?  : mkdir($descDir);代表不存在该目录就创建
+
+rename(\ROOT_PATH . '/public'.$file, \ROOT_PATH . $desc_path);代表将某文件移动到目标目录底下
+
