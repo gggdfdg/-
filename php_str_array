@@ -14,3 +14,5 @@ is_dir($descDir) ?  : mkdir($descDir);代表不存在该目录就创建
 
 rename(\ROOT_PATH . '/public'.$file, \ROOT_PATH . $desc_path);代表将某文件移动到目标目录底下
 
+array_merge(array_diff(['xx','yy','zz','kk'], array("yy","kk")));//去除数组中yy,kk元素,结果是['xx','zz'];
+
