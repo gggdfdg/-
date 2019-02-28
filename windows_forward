@@ -1,0 +1,14 @@
+端口转发，局域网一台电脑访问另外一台电脑docker项目的端口的路由支持。
+有docker项目的电脑做服务器，做端口转发，另外一台做客户端，通过端口转发，访问另外一台电脑的docker项目
+命令
+=======================================
+C:\Users\Administrator>netsh  interface portproxy add v4tov4 listenaddress=192.1
+68.0.102 listenport=8888 connectaddress=192.168.99.100 connectport=8888
+C:\Users\Administrator>netsh  interface portproxy add v4tov4 listenaddress=192.1
+68.0.102 listenport=22 connectaddress=192.168.99.100 connectport=22
+=======================================（转发22，8888端口到192.168.99.100上，192.168.99.100这个地址是docker虚拟地址，22端口是远程登录的端口）
+C:\Users\Administrator>netsh interface portproxy delete v4tov4 listenaddress=192
+.168.0.102 listenport=8888
+========================================（删除端口8888的转发,192.168.0.102是本服务器的ip4地址）
+netsh interface portproxy show all
+========================================（显示所有转发的端口）
