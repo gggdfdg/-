@@ -1,0 +1,8 @@
+public void setEvenDpos(int evenDpos) {
+		this.evenDpos = evenDpos;
+		System.out.println(evenDpos);
+		StackTraceElement[] stacks = (new Throwable()).getStackTrace();
+		for (StackTraceElement stack : stacks) {
+			System.out.println(stack.getClassName() + "-" + stack.getMethodName());
+		}
+	}
