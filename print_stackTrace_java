@@ -1,8 +1,15 @@
 public void setEvenDpos(int evenDpos) {
-		this.evenDpos = evenDpos;
-		System.out.println(evenDpos);
-		StackTraceElement[] stacks = (new Throwable()).getStackTrace();
-		for (StackTraceElement stack : stacks) {
-			System.out.println(stack.getClassName() + "-" + stack.getMethodName());
-		}
+	this.evenDpos = evenDpos;
+	System.out.println(evenDpos);
+	StackTraceElement[] stacks = (new Throwable()).getStackTrace();
+	for (StackTraceElement stack : stacks) {
+		System.out.println(stack.getClassName() + "-" + stack.getMethodName());
 	}
+}
+ //获取所有的属性
+Properties properties = System.getProperties();
+//遍历所有的属性
+for (String key : properties.stringPropertyNames()) {
+    //输出对应的键和值
+    System.out.println(key + "=" + properties.getProperty(key));
+}
