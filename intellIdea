@@ -1,0 +1,3 @@
+file->setting->general->show quick documenttation on mouse move 勾上鼠标移动显示方法
+file->setting->editor->code Completion->parameter info->show full method signatures和show the parameter info popup in 1000ms和show parameter name hints on completion勾上
+alt + 
