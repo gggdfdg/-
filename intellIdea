@@ -1,3 +1,6 @@
 file->setting->general->show quick documenttation on mouse move 勾上鼠标移动显示方法
 file->setting->editor->code Completion->parameter info->show full method signatures和show the parameter info popup in 1000ms和show parameter name hints on completion勾上
-alt + 
+解决方法：
+1.修改redis.conf文件，修改：protected-mode no 
+2.启动redis，./redis-server redis.conf
+binding 127.0.0.1
