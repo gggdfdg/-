@@ -1,0 +1,1 @@
+public static String cleanPath(String path);//这个能将jar文件里面的文件或者相对路径，或者\符号转化成windows的符号//等的绝对路径
