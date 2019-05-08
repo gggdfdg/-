@@ -4,3 +4,6 @@ file->setting->editor->code Completion->parameter info->show full method signatu
 1.修改redis.conf文件，修改：protected-mode no 
 2.启动redis，./redis-server redis.conf
 binding 127.0.0.1
+
+
+记得安装Codota在intellidea 
