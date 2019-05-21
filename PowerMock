@@ -1,0 +1,7 @@
+测试除了用test的单元测试，有时候要模拟无关数据要用PowerMock，这里就需要导入几个包，javassist-3.25.0-GA,junit-4.12,mockito-all-2.0.2-beta.jar,powermock-api-mockito-1.6.3
+powermock-api-support-1.6.3,powermock-core-1.6.3,power-module-junit4-1.6.1,power-module-junit4-common-1.6.1,powermock-reflect-1.6.3的bao。
+
+如果出现下面的问题
+java.lang.LinkageError: loader constraint violation: loader (instance of org/powermock/core/classloader/MockClassLoader) previously initiated loading for a different type with name "javax/management/MBeanServer"
+Classloader冲突，用这个：@PowerMockIgnore("javax.management.*")
+让模拟类装入器不装载javax.*.很管用。
