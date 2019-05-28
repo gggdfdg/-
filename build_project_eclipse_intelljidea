@@ -1,0 +1,9 @@
+下面讲解两种开发工具打包项目的方法
+1：eclipse     File -> export->Runnable JAR file 选择Launch configuration，这个是入口文件，包含main的方法，选择Export destination，这个是导出的jar包出口
+2：eclipse     File -> export->JAR file 选择需要导出的项目，并点开项目，选择要导出的文件，一般右边选择.classpath和.project即可，然后选择export destination，
+这个是导出的jar包出口，下一步直接自动生成manifest file就行，然后select the class of application entry point，这里选择入口文件。如果单纯的jar就不用.
+3:intelljidea File->project Structure->artifacts->添加->jar ->from module-> 选则module，选择，main class，这个是主入口文件，选择jar files from libraries，这个选择
+copy to the output directory and link via manifest,这个选项的意思是分包，lib包和欲打包的分开，在manifest会有配置classpath的，点击ok，然后在output layout里面
+点击自己的打包报名，移除自己不需要的打包的lib。然后build-》build artifi选择就可以了。
+
+nohup java -jar xxx.jar >/dev/null & 
