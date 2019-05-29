@@ -12,3 +12,9 @@ C:\Users\Administrator>netsh interface portproxy delete v4tov4 listenaddress=192
 ========================================（删除端口8888的转发,192.168.0.102是本服务器的ip4地址）
 netsh interface portproxy show all
 ========================================（显示所有转发的端口）
+
+1、XP用户得先添加netsh  interface ipv6 install
+
+2、使用netstats命令，查看是否我们绑定端口（listenport）已经在侦听中，运行：NETSTAT.EXE -antp tcp|findstr LISTENING|findstr 22
+
+3、如果没有看到有输出条目，证明端口不侦听，自然也就无法代理了，这时需要检查我们的IP HELPE服务是否开启。在控制面板->管理工具->服务，打开后，查找IP Help是否开启。该服务主要用于IPV6转换技术提供隧道连接
