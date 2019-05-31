@@ -7,3 +7,5 @@ copy to the output directory and link via manifest,这个选项的意思是分�
 点击自己的打包报名，移除自己不需要的打包的lib。然后build-》build artifi选择就可以了。
 
 nohup java -jar xxx.jar < /dev/null &
+
+linux的  安装jdk yum install -y java-1.8.0-openjdk-devel.x86_64
