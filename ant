@@ -1,0 +1,177 @@
+ant是和maven齐名的构建工具，我们简单的讲解下，项目结构是common是基础，commdef依赖common，gameServer依赖common和commdef，lib包在common里面
+1：在项目模块gameServer底下建立build.xml,内容如下----------------------------------------------------------------------
+<?xml version="1.0" encoding="GBK"?>
+<project name="gameServer" default="end" basedir="."> <!-- 这里name是标识而已，default是构建的target的名字，默认执行这个target，这里的basedir是基础包，下面的相对路径都是基于这个basedir-->
+	<property name="build.dir" location="build" />   <!-- 这property是全局属性，底下可以用${name}调用，location是路径，build是相对于basedir下一层build-->
+	<property name="src.dir" location="build/src" /> 
+	<property name="bconf.dir" location="build/conf" />
+	<property name="classes.dir" value="build/classes" />
+	<property name="tolib.dir" value="build/lib" />
+	<property name="common.dir" location="../common" />
+	<property name="lib.dir" location="../common/lib" />
+	<property name="commdef.dir" location="../commdef" />
+	<property name="conf.dir" location="conf" />
+	<property name="robots.dir" location="robots.txt" />
+	<property name="main-class" value="core.server.GameServer" />
+	<property name="jar.file" value="build/gameServer.jar" /> <!-- value的话不能用../这种-->
+	<path id="classpath">   <!-- 这是个id为classpath的path，用于依赖的jar包-->
+		<fileset dir="${lib.dir}">  <!-- 这个path的文件夹是${lib.dir}-->
+			<include name="**/*.jar" />  <!-- 这个path的文件夹是${lib.dir}的底下的所有jar包-->
+		</fileset>
+	</path>
+    <target name="clean" description="清理所有"> <!-- 第一个target，名字是clean -->
+        <delete dir="${build.dir}"/><!-- 删除${build.dir}的目录 -->
+    	<echo level="info">构建开始</echo><!-- 输出日志 -->
+    </target>
+	
+    <target name="init" depends="clean" description="初始化,建立目录,复制文件"> <!-- 第二个target，依赖clean -->
+    	<mkdir dir="${build.dir}"/><!-- 创建 ${build.dir}目录-->
+    	<mkdir dir="${classes.dir}"/>
+    	<mkdir dir="${src.dir}"/>
+    	<copy todir="${src.dir}"><!-- 复制到${src.dir}-->
+	        <fileset dir="."> <!-- 复制的原目标是当前文件夹-->
+	            <include name="**/*.java" /><!-- 复制的原目标是当前文件夹的所有java文件-->
+	        </fileset>
+    	</copy>
+    	<copy todir="${src.dir}">
+	        <fileset dir="${commdef.dir}/src">
+	            <include name="**/*.java" />
+	        </fileset>
+    	</copy>
+    	<copy todir="${src.dir}">
+	        <fileset dir="${common.dir}/src">
+	            <include name="**/*.java" />
+	        </fileset>
+    	</copy>
+    	<copy todir="${bconf.dir}">
+    		 <fileset dir="${conf.dir}"/>
+    	</copy>
+        <copy file="${robots.dir}" todir="${build.dir}"/><!-- 复制${robots.dir}到${build.dir}-->
+    	<echo level="info">前期创建复制完毕</echo>
+    </target>
+    <target name="compile" depends="init" description="编译">
+        <javac includeantruntime="on" srcdir="${src.dir}" destdir="${classes.dir}" classpathref="classpath" source="1.8" target="1.8"><!-- 编译的classpathref依赖path，includeantruntime是依赖classpath开关，srcdir是欲编译的目录，destdir是编译的目标目录 -->
+        	<compilerarg line="-encoding UTF-8 "/>   <!-- 编译的编码-->
+        </javac>
+    	<echo level="info">编译完毕</echo>
+    </target>
+	
+    <target name="jar" depends="compile" description="打包类文件"><!--打包-->
+    	<pathconvert property="mf.classpath" pathsep=" "> <!--依赖jar转化，名字叫mf.classpath，给Class-Path用-->
+    		<mapper>
+	    		<chainedmapper>
+	    			<flattenmapper />
+	    		    <globmapper from="*" to="lib/*" /> <!--依赖jar转化，所有xxx.jar加上lib-->
+	    		</chainedmapper>
+    		</mapper>
+            <path refid="classpath" />  <!--依赖jar转化，依赖于classpath-->
+    	</pathconvert> 
+        <jar jarfile="${jar.file}" > <!--jarfile 是保存的jar文件-->
+            <fileset dir="${classes.dir}" includes="**/*.*" /> <!--将${classes.dir}的所有编译后的class压缩成jar-->
+        	<manifest> 
+               <attribute name="Main-Class" value="${main-class}"/> <!--入口-->
+               <attribute name="Class-Path" value="${mf.classpath}"/> <!--classPath-->
+            </manifest> 
+        </jar>
+    	<copy todir="${tolib.dir}" flatten="true"> <!--复制lib到${tolib.dir}，去除当中的所有文件夹-->
+	        <fileset dir="${lib.dir}">
+	            <include name="**/*.jar" /><!--复制的jar原-->
+	        	<type type="file"/>
+	        </fileset>
+    	</copy>
+    	<echo level="info">打包完毕</echo>
+    </target>
+	
+    <target name="end" depends="jar" description="清理,删除临时目录">
+        <delete dir="${classes.dir}" />
+    	<delete dir="${src.dir}" />
+        <echo level="info">清理完毕</echo>
+    </target>
+	
+    <!--target name="run" depends="compile" description="运行">
+        <java classname="powerwind.Sample" fork="yes" dir="${basedir}">
+            <classpath refid="run.classpath" />
+            <arg line="1" />
+        </java>
+    </target-->
+</project>
+-----------------------------------------------------------------------------------------------------------------
+
+
+2：在项目模块common底下建立build.xml,内容如下(这个是主要打包的，只要运行这个commondef和gameServer都会跑)----------------------------------------------------------------------
+
+<?xml version="1.0" encoding="GBK"?>
+<project default="run" name="HallAndSubGame"> 
+	<property id="gameb.dir" name="gameb.dir" location="../gameServer/build" />  <!--属性-->
+	<!-- 红中-->
+	<property id="hzmj.dir" name="hzmj.dir" location="../HZMJ" />
+	<property id="hzmj.jar" name="hzmj.jar" location="../HZMJ/build/HZMJ.jar" />
+	<!-- 万载-->
+	<property id="wzmj.dir" name="wzmj.dir" location="../WZMJ" />
+	<property id="wzmj.jar" name="wzmj.jar" location="../WZMJ/build/WZMJ.jar" />
+	<!-- 斗地主-->
+	<property id="ddz.dir" name="ddz.dir" location="../DDZ" />
+	<property id="ddz.jar" name="ddz.jar" location="../DDZ/build/DDZ.jar" />
+	
+    <target name="run"> 
+        <ant antfile="build.xml" dir="../gameServer" inheritall="false" inheritrefs="false"/> <!--打包gameServer-->
+    	
+        <ant antfile="build.xml" dir="../commdef" inheritall="true" inheritrefs="true"><!-- 打包红中-->
+        	<reference refid="hzmj.dir" torefid="base.dir"/>  <!--hzmj.dir 替换base.dir-->
+        	<reference refid="hzmj.jar" torefid="jar.file"/>  <!--hzmj.jar 替换jar.file-->
+        </ant> 
+    	
+    	<ant antfile="build.xml" dir="../commdef" inheritall="true" inheritrefs="true"><!-- 打包万载麻将-->
+        	<reference refid="wzmj.dir" torefid="base.dir"/> 
+        	<reference refid="wzmj.jar" torefid="jar.file"/>
+    	</ant> 
+    	
+    	<ant antfile="build.xml" dir="../commdef" inheritall="true" inheritrefs="true"><!-- 打包斗地主-->
+        	<reference refid="ddz.dir" torefid="base.dir"/> 
+        	<reference refid="ddz.jar" torefid="jar.file"/>
+    	</ant> 
+    	
+    	<!-- 创建zip -->
+    	<zip basedir="${gameb.dir}/games" zipfile="${gameb.dir}/games.zip"/> <!-- 压缩-->
+    	<zip basedir="${gameb.dir}/conf" zipfile="${gameb.dir}/conf.zip"/> 
+    	<zip basedir="${gameb.dir}/lib" zipfile="${gameb.dir}/lib.zip"/> 
+    	
+    	<delete dir="${gameb.dir}/games"/>
+    	<delete dir="${gameb.dir}/conf"/>
+    </target> 
+</project> 
+------------------------------------------------------------------------------------------------------------
+3：在commondef创建build.xml
+------------------------------------------------------------------------------------------------------------
+<?xml version="1.0" encoding="GBK"?>
+<project name="game" default="move">
+    <target name="clean" description="清理所有">
+        <delete dir="${ant.refid:base.dir}/build"></delete><!--${ant.refid:base.dir}是reference中的base.dir值，见common里面的传参build.xml-->
+    	<echo level="info">构建开始------------------------------------------</echo>
+    </target>
+	
+    <target name="compile" depends="clean" description="编译">
+    	<mkdir dir="${ant.refid:base.dir}/build"/>
+    	<mkdir dir="${ant.refid:base.dir}/build/classes"/>
+        <javac includeantruntime="false" srcdir="${ant.refid:base.dir}/src" destdir="${ant.refid:base.dir}/build/classes" source="1.8" target="1.8"  verbose="no" failonerror="on">
+        	<classpath id="tcls">
+        	    <pathelement path="${ant.refid:gameb.dir}/gameServer.jar" /> <!-- 依赖单jar-->
+            </classpath>
+        	<compilerarg line="-encoding UTF-8 "/> 
+        </javac>
+    	<echo level="info">编译完毕</echo>
+    </target>
+	
+    <target name="jar" depends="compile" description="打包类文件">
+        <jar jarfile="${ant.refid:jar.file}" >
+            <fileset dir="${ant.refid:base.dir}/build/classes" includes="**/*.*" />
+        </jar>
+    	<delete dir="${ant.refid:base.dir}/build/classes"/>
+    	<echo level="info">打包完毕</echo>
+    </target>
+	
+	<target name="move" depends="jar" description="移动到主目录">
+	 	<copy todir="${ant.refid:gameb.dir}/games" file="${ant.refid:jar.file}" />
+    	<echo level="info">移动到主目录完毕------------------------------------------</echo>
+	</target>
+</project>
