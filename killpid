@@ -1,0 +1,29 @@
+----------------------
+nohup java -jar gameServer.jar < /dev/null & echo $! > pidfile.txt ，这样会在当前的路径生成pidfile.txt，里面记录着pid
+kill -9 `cat pidfile.txt` （这样就可以杀进程）
+-=-----------------------
+
+
+----------------------------(第二种杀进程)
+nohup command > logfile.txt &
+ps -ax | grep command  # 查看PID
+kill -9 [PID] # 结束PID对应的进程
+-------------------------------
+
+
+附：Shell中的特殊变量说明
+变量	说明
+$$	Shell本身的PID（ProcessID）
+$!	Shell最后运行的后台Process的PID
+$?	最后运行的命令的结束代码（返回值）
+$-	使用Set命令设定的Flag一览
+$*	所有参数列表。如"$*"用「"」括起来的情况、以"$1 $2 … $n"的形式输出所有参数。
+$@	所有参数列表。如"$@"用「"」括起来的情况、以"$1" "$2" … "$n" 的形式输出所有参数。
+$#	添加到Shell的参数个数
+$0	Shell本身的文件名
+$1～$n	添加到Shell的各参数值。$1是第1参数、$2是第2参数…。
+--------------------- 
+作者：weixin_33705053 
+来源：CSDN 
+原文：https://blog.csdn.net/weixin_33705053/article/details/88243186 
+版权声明：本文为博主原创文章，转载请附上博文链接！
