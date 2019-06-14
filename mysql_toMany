@@ -24,3 +24,7 @@ mysql> show processlist;
 | 1380803 | dev  | 192.x.xxx.x50:32889 | NULL        | Sleep   |    5 |          | NULL             |
 | 1380952 | dev  | 192.x.xxx.x50:34658 | dev         | Query   |    0 | starting | show processlist |
 +---------+------+--------------------+-------------+---------+------+----------+------------------+
+
+
+对于正在运行中的生产服务器，在不能停止服务情况下，修改此项怎么办？很简单，以root用户登录到mysql,执行：
+set global wait_timeout=100
