@@ -1,0 +1,102 @@
+一则线上MySql连接异常的排查过程
+  mysql  5.5k 次阅读  ·  读完需要 17 分钟
+Mysql作为一个常用数据库，在互联网系统应用很多。有些故障是其自身的bug，有些则不是，这里以前段时间遇到的问题举例。
+
+问题
+当时遇到的症状是这样的，我们的应用在线上测试环境，JMeter测试过程中，发现每次压力测试开始时访问低前几个http request请求会超时，而之后的请求持续测试中都不会。最后一点是Tomcat的log并没有报什么错误。
+
+压测的内容就是起200线程不停的向这个http页面发送请求，这个页面逻辑也比较简单，会在后端向数据库插入一条数据，连接池采用阿里的Druid（这个坑先留在这），tomcat中运行的是常规web app应用，每个应用的JDBC连接池最大连接数只设了30，就是说就算4个tomcat一起连数据库，最大也没有多少连接。
+
+尝试排查
+由于tomcat的log并没有什么错，所以先开始尝试重现错误。 错误重现开始并不容易，因为看起来比较随机，后来经过总结，发现每次都是出现问题都是应用放了一晚上后，测试人员早上过来开始压力测试时出现，开始怀疑跟闲置有关，所以后面的重现都按这个方式来，闲置半小时再开始尝试重现。
+
+找log
+没有log，就要看下JVM的stack信息了。重现故障，上该机器上用jstack直接抓问题tomcat 的jvm信息。
+
+jps   
+  列出机器的java进程号
+jstack javaid     
+  dump该java进程的stack信息
+拿到的stack信息中发现了有用的东西：
+
+"http-bio-8081-exec-4975" daemon prio=10 tid=0x00007f9d4c127000 nid=0x65db runnable [0x00007f9cc4544000]
+   java.lang.Thread.State: RUNNABLE
+    at java.net.SocketInputStream.socketRead0(Native Method)
+    at java.net.SocketInputStream.read(SocketInputStream.java:129)
+    at com.mysql.jdbc.util.ReadAheadInputStream.fill(ReadAheadInputStream.java:114)
+    at com.mysql.jdbc.util.ReadAheadInputStream.readFromUnderlyingStreamIfNecessary(ReadAheadInputStream.java:161)
+    at **com.mysql.jdbc.util.ReadAheadInputStream.read(ReadAheadInputStream.java:189)
+    - locked <0x0000000684d608c8> (a com.mysql.jdbc.util.ReadAheadInputStream)**
+    at com.mysql.jdbc.MysqlIO.readFully(MysqlIO.java:3014)
+    at com.mysql.jdbc.MysqlIO.reuseAndReadPacket(MysqlIO.java:3467)
+    at com.mysql.jdbc.MysqlIO.reuseAndReadPacket(MysqlIO.java:3456)
+    at com.mysql.jdbc.MysqlIO.checkErrorPacket(MysqlIO.java:3997)
+    at com.mysql.jdbc.MysqlIO.sendCommand(MysqlIO.java:2468)
+    at com.mysql.jdbc.ConnectionImpl.pingInternal(ConnectionImpl.java:4092)
+    at com.mysql.jdbc.ConnectionImpl.ping(ConnectionImpl.java:4069)
+    at sun.reflect.GeneratedMethodAccessor94.invoke(Unknown Source)
+    at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+    at java.lang.reflect.Method.invoke(Method.java:597)
+    at com.alibaba.druid.pool.vendor.MySqlValidConnectionChecker.isValidConnection(MySqlValidConnectionChecker.java:98)
+    at com.alibaba.druid.pool.DruidAbstractDataSource.testConnectionInternal(DruidAbstractDataSource.java:1235)
+    at com.alibaba.druid.pool.DruidDataSource.getConnectionDirect(DruidDataSource.java:928)
+    at com.alibaba.druid.pool.DruidDataSource.getConnection(DruidDataSource.java:882)
+    at com.alibaba.druid.pool.DruidDataSource.getConnection(DruidDataSource.java:872)
+    at com.alibaba.druid.pool.DruidDataSource.getConnection(DruidDataSource.java:97)
+    at org.springframework.jdbc.datasource.DataSourceTransactionManager.doBegin(DataSourceTransactionManager.java:202)
+    at org.springframework.transaction.support.AbstractPlatformTransactionManager.getTransaction(AbstractPlatformTransactionManager.java:372)
+    at org.springframework.transaction.interceptor.TransactionAspectSupport.createTransactionIfNecessary(TransactionAspectSupport.java:417)
+    at org.springframework.transaction.interceptor.TransactionAspectSupport.invokeWithinTransaction(TransactionAspectSupport.java:255)
+    at org.springframework.transaction.interceptor.TransactionInterceptor.invoke(TransactionInterceptor.java:94)
+    at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:179)
+    at org.springframework.aop.framework.JdkDynamicAopProxy.invoke(JdkDynamicAopProxy.java:207)
+    at com.sun.proxy.$Proxy27.insert(Unknown Source)
+可以看到HTTP请求从前端容器直到数据库读取时为止，卡在了数据库读取的地方，而且并不是JDBC驱动代码里的问题，而且出在socket读取的地方：
+
+com.mysql.jdbc.util.ReadAheadInputStream.read(ReadAheadInputStream.java:189)
+    - locked <0x0000000684d608c8> (a com.mysql.jdbc.util.ReadAheadInputStream)*
+根据这个错误搜索了下，唯一有价值的就是N年前mysql官网上报的一个bug，同样的错误，但处理的办法并不治本。如提到了将JDBC连接字串改为：
+
+useReadAheadInput=false&useUnbufferedInput=false
+这只是让socket不去预读网络缓冲区，但实际上这个时候Mysql的连接已经断开了，并不知道是web应用这里断的还是Mysql断的。
+
+查找连接池超时
+由于根据log看起来是应用的客户端在socket上读不到东西，肯定是应用与mysql的tcp连接断了，所以开始排查应用连接池设置与mysql的连接超时设置。
+
+应用连接池设置
+
+name="maxWait" value="60000"
+获取连接最大等待60秒
+
+name="testWhileIdle" value="true"
+测试空闲连接
+
+name="minEvictableIdleTimeMillis" value="300000"
+name="timeBetweenEvictionRunsMillis" value="60000" 
+Destroy线程会检测连接的间隔时间
+
+应用端的连接池设置没有主动断掉的设置。
+
+mysql连接超时设置
+
+show global variables like '%timeout%'
+
+看到mysql维持连接的timeout时间为28800，即8小时，数据库端不会断掉这个连接。
+
+至此，问题的排查进入死胡同，两边都不会主动断开连接，为什么客户端在闲置几分钟后会被断掉？
+
+还有一个疑点是同样的代码，数据库也没什么变动，在另一个纯测试环境完全没有这个问题。
+
+查找网络问题
+现在问题的重点怀疑方向就是线上环境网络问题。于是找运维的同事查看了下数据库机器上linux有没有什么异常的配置，结果是没有。
+
+期间也怀疑为什么用了阿里druid的连接池，现在设成每分钟检测连接池里的连接，还是会在拿到连接的时候有失效的连接。
+
+解决
+断断续续折腾了2天，抱着死马当活马医去咨询了其他部门的同事，结果那兄弟说是不是闲置后卡在socketRead上？然后问了应用与数据库是不是在不同网段上，马上建议找网络的人查一下防火墙对tcp长连接超时的设置。
+
+这时候基本上就肯定是防火墙设置的问题，排查后发现两个网段间华为交换机的长连接超时设了3分钟，由于java应用的连接池是尽量长时间的维持连接（几个小时，低于数据库的最长8小时设置），而防火墙认为超过3分钟的连接是有问题的，直接断掉了，这时应用与mysql都不知道tcp连接已经被断了。
+
+此次故障还暴露了阿里Druid开源连接池对连接处理逻辑的问题，连接池并没有用单独的线程去检测所有连接有没有断开，查代码后发现其只是在拿到连接时测试连接是否有效，处理逻辑没有老牌c3p0严谨，之后将应用连接池实现更换为c3p0。
+
+文章来自微信平台「麦芽面包」。转载请注明。
