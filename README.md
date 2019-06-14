@@ -85,3 +85,5 @@ build_project_eclipse_intelljidea------------------打包和nohup
 ant------------------ant打包
 
 killpid----------------进程杀得方法
+
+mysql_error------------mysql出现at java.net.SocketInputStream.socketRead0(Native Method)，web和mysql的Tcp连接被断开的问题处理，可能是防火墙，或者web，或者连接池，或者缓冲池
