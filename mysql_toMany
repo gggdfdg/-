@@ -1,0 +1,26 @@
+杀死mysql中too many connection连接进程
+mysql> show variables like "max_connections";
+
+问题:点击navicat中连接的数据库时，出现了too many connection问题
+
+查看mysql默认的连接数,默认是100个连接:
+
++-----------------+-------+
+| Variable_name   | Value |
++-----------------+-------+
+| max_connections | 100   |
++-----------------+-------+
+1 row in set
+
+
+没有修改mysql配置的权限，只好通过杀死mysql连接客户端的进程了。。。。
+查看mysql连接信息:
+mysql> show processlist;
++---------+------+--------------------+-------------+---------+------+----------+------------------+
+| Id      | User | Host               | db          | Command | Time | State    | Info             |
++---------+------+--------------------+-------------+---------+------+----------+------------------+
+| 1380797 | dev  | 192.x.xxx.x50:60041 | NULL        | Sleep   |  628 |          | NULL             |
+| 1380799 | dev  | 192.x.xxx.x50:42251 | dev         | Sleep   |  625 |          | NULL             |
+| 1380803 | dev  | 192.x.xxx.x50:32889 | NULL        | Sleep   |    5 |          | NULL             |
+| 1380952 | dev  | 192.x.xxx.x50:34658 | dev         | Query   |    0 | starting | show processlist |
++---------+------+--------------------+-------------+---------+------+----------+------------------+
