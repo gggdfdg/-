@@ -1,0 +1,220 @@
+问题描述
+
+支付清结算系统"外部对账"部分任务在早上6：00~7:00时间段内对账速度缓慢，且经常造成对账统计结果不准确问题，导致结转记账不准确。
+
+初步分析及处理过程
+
+由于外部对账是经过性能优化的，且在压测环境表现良好，所以最开始初步认为是由于数据库性能瓶颈导致，初步处理方式为将线上6:00~7:00之前的慢SQL进行了一番排查，并对涉及外部系统的慢SQL进行了优化，这个步骤理论上是可以解决此类问题，但RDS（阿里云Mysql可能存在慢SQL统计不准确问题）。
+
+特点时间段内线程栈分析
+
+特定时间段线程栈分析，由于SQL优化部分并没有解决此类问题，为了查看在早上6:00~7:00这个时间段内程序JVM内部到底发生了什么，所以采取了定时抓取线程栈日志的手段（具体方式为在Linux服务器添加cron任务，并累计输出日志的方式，脚本如:point_down:）。
+
+#clearjstack.sh
+
+#!/bin/sh
+DATE='/bin/date'
+timestamp() {
+$DATE +'%Y-%m-%d %H:%M:%S'
+}
+ts=`timestamp`
+echo "start log $ts" >> /tmp/clearjstack.log
+/usr/java/jdk1.7.0_67/bin/jstack -l `/usr/java/jdk1.7.0_67/bin/jps -lvm | grep tomcat-clear | awk '{print $1}'` >> /tmp/clearjstack.log
+ts=`timestamp`
+echo "end log $ts" >> /tmp/clearjstack.log
+Linux下添加定时任务的方式：
+
+//添加计划任务
+[root@123.57.28.241/10.172.233.8 tmp]cd /var/spool/cron/
+[root@123.57.28.241/10.172.233.8 cron]pwd
+/var/spool/cron/具体用户名（如为root用户）
+[root@123.57.28.241/10.172.233.8 cron]vim root
+*/5 * * * * /bin/sh /tmp/clearjstack.sh > /dev/null 2>&1
+//查看计划任务
+[root@123.57.28.241/10.172.233.8 cron]crontab -l
+0 0 * * * /usr/local/script/Cutlog.sh >/dev/null 2>&1
+*/5 * * * * /bin/sh /tmp/clearjstack.sh > /dev/null 2>&1
+对线程栈日志分析（1）
+
+#clearjstack.log
+
+start log 2016-11-24 06:20:01
+2016-11-24 06:20:02
+Full thread dump Java HotSpot(TM) 64-Bit Server VM (24.65-b04 mixed mode):
+
+"Thread-70" prio=10 tid=0x00007f21f4022800 nid=0x12da runnable [0x00007f216cace000]
+java.lang.Thread.State: RUNNABLE
+at java.net.SocketInputStream.socketRead0(Native Method)
+at java.net.SocketInputStream.read(SocketInputStream.java:152)
+at java.net.SocketInputStream.read(SocketInputStream.java:122)
+at com.mysql.jdbc.util.ReadAheadInputStream.fill(ReadAheadInputStream.java:114)
+at com.mysql.jdbc.util.ReadAheadInputStream.readFromUnderlyingStreamIfNecessary(ReadAheadInputStream.java:161)
+at com.mysql.jdbc.util.ReadAheadInputStream.read(ReadAheadInputStream.java:189)
+- locked <0x0000000786facbc8> (a com.mysql.jdbc.util.ReadAheadInputStream)
+at com.mysql.jdbc.MysqlIO.readFully(MysqlIO.java:3014)
+at com.mysql.jdbc.MysqlIO.reuseAndReadPacket(MysqlIO.java:3467)
+at com.mysql.jdbc.MysqlIO.reuseAndReadPacket(MysqlIO.java:3456)
+at com.mysql.jdbc.MysqlIO.checkErrorPacket(MysqlIO.java:3997)
+at com.mysql.jdbc.MysqlIO.sendCommand(MysqlIO.java:2468)
+at com.mysql.jdbc.MysqlIO.sqlQueryDirect(MysqlIO.java:2629)
+at com.mysql.jdbc.ConnectionImpl.execSQL(ConnectionImpl.java:2719)
+- locked <0x0000000786f9a650> (a com.mysql.jdbc.JDBC4Connection)
+at com.mysql.jdbc.PreparedStatement.executeInternal(PreparedStatement.java:2155)
+- locked <0x0000000786f9a650> (a com.mysql.jdbc.JDBC4Connection)
+at com.mysql.jdbc.PreparedStatement.execute(PreparedStatement.java:1379)
+- locked <0x0000000786f9a650> (a com.mysql.jdbc.JDBC4Connection)
+at com.alibaba.druid.pool.DruidPooledPreparedStatement.execute(DruidPooledPreparedStatement.java:493)
+at sun.reflect.GeneratedMethodAccessor169.invoke(Unknown Source)
+at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+at java.lang.reflect.Method.invoke(Method.java:606)
+at org.apache.ibatis.logging.jdbc.PreparedStatementLogger.invoke(PreparedStatementLogger.java:55)
+at com.sun.proxy.$Proxy84.execute(Unknown Source)
+at org.apache.ibatis.executor.statement.PreparedStatementHandler.query(PreparedStatementHandler.java:56)
+at org.apache.ibatis.executor.statement.RoutingStatementHandler.query(RoutingStatementHandler.java:70)
+at org.apache.ibatis.executor.ReuseExecutor.doQuery(ReuseExecutor.java:54)
+at org.apache.ibatis.executor.BaseExecutor.queryFromDatabase(BaseExecutor.java:259)
+at org.apache.ibatis.executor.BaseExecutor.query(BaseExecutor.java:132)
+at org.apache.ibatis.executor.BaseExecutor.query(BaseExecutor.java:115)
+at sun.reflect.GeneratedMethodAccessor165.invoke(Unknown Source)
+at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+at java.lang.reflect.Method.invoke(Method.java:606)
+at org.apache.ibatis.plugin.Invocation.proceed(Invocation.java:46)
+at com.github.miemiedev.mybatis.paginator.OffsetLimitInterceptor.intercept(OffsetLimitInterceptor.java:66)
+at org.apache.ibatis.plugin.Plugin.invoke(Plugin.java:57)
+at com.sun.proxy.$Proxy82.query(Unknown Source)
+at org.apache.ibatis.session.defaults.DefaultSqlSession.selectList(DefaultSqlSession.java:104)
+at org.apache.ibatis.session.defaults.DefaultSqlSession.selectList(DefaultSqlSession.java:98)
+at org.apache.ibatis.session.defaults.DefaultSqlSession.selectOne(DefaultSqlSession.java:62)
+at sun.reflect.GeneratedMethodAccessor203.invoke(Unknown Source)
+at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+at java.lang.reflect.Method.invoke(Method.java:606)
+at org.mybatis.spring.SqlSessionTemplate$SqlSessionInterceptor.invoke(SqlSessionTemplate.java:358)
+at com.sun.proxy.$Proxy29.selectOne(Unknown Source)
+at org.mybatis.spring.SqlSessionTemplate.selectOne(SqlSessionTemplate.java:163)
+at org.apache.ibatis.binding.MapperMethod.execute(MapperMethod.java:63)
+at org.apache.ibatis.binding.MapperProxy.invoke(MapperProxy.java:43)
+at com.sun.proxy.$Proxy87.countOrgSettleFlow(Unknown Source)
+at com.ninefbank.smallpay.clear.service.impl.OrgSettleFlowServiceImpl.isExistOrgSettleFlow(OrgSettleFlowServiceImpl.java:45)
+at com.ninefbank.smallpay.clear.service.impl.OrgSettleFlowServiceImpl$$FastClassBySpringCGLIB$$c921c9ca.invoke(<generated>)
+at org.springframework.cglib.proxy.MethodProxy.invoke(MethodProxy.java:204)
+at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.invokeJoinpoint(CglibAopProxy.java:700)
+at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:150)
+at org.springframework.transaction.interceptor.TransactionInterceptor$1.proceedWithInvocation(TransactionInterceptor.java:96)
+at org.springframework.transaction.interceptor.TransactionAspectSupport.invokeWithinTransaction(TransactionAspectSupport.java:260)
+at org.springframework.transaction.interceptor.TransactionInterceptor.invoke(TransactionInterceptor.java:94)
+at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:172)
+at org.springframework.aop.framework.CglibAopProxy$DynamicAdvisedInterceptor.intercept(CglibAopProxy.java:633)
+at com.ninefbank.smallpay.clear.service.impl.OrgSettleFlowServiceImpl$$EnhancerBySpringCGLIB$$6b2e2fc1.isExistOrgSettleFlow(<generated>)
+at com.ninefbank.smallpay.clear.util.FeeCountUtil.createOrgSettleFlow(FeeCountUtil.java:235)
+- locked <0x000000078c795ed8> (a java.lang.Class for com.ninefbank.smallpay.clear.util.FeeCountUtil)
+at com.ninefbank.smallpay.clear.writer.OuterReconWriter.saveTaskErrorInfo(OuterReconWriter.java:126)
+- locked <0x0000000788061c30> (a com.ninefbank.smallpay.clear.writer.OuterReconWriter)
+at com.ninefbank.smallpay.clear.tasklet.task.OuterReconWriterParallTask.call(OuterReconWriterParallTask.java:70)
+at com.ninefbank.smallpay.clear.tasklet.task.OuterReconWriterParallTask.call(OuterReconWriterParallTask.java:35)
+at java.util.concurrent.FutureTask.run(FutureTask.java:262)
+at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+at java.lang.Thread.run(Thread.java:745)
+
+Locked ownable synchronizers:
+- <0x000000078deebbf0> (a java.util.concurrent.ThreadPoolExecutor$Worker)
+
+"Thread-69" prio=10 tid=0x00007f21f401c000 nid=0x12d9 waiting for monitor entry [0x00007f216ccd1000]
+java.lang.Thread.State: BLOCKED (on object monitor)
+at com.ninefbank.smallpay.clear.writer.OuterReconWriter.saveReconData(OuterReconWriter.java:169)
+- waiting to lock <0x0000000788061c30> (a com.ninefbank.smallpay.clear.writer.OuterReconWriter)
+at com.ninefbank.smallpay.clear.tasklet.task.OuterReconWriterParallTask.call(OuterReconWriterParallTask.java:68)
+at com.ninefbank.smallpay.clear.tasklet.task.OuterReconWriterParallTask.call(OuterReconWriterParallTask.java:35)
+at java.util.concurrent.FutureTask.run(FutureTask.java:262)
+at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+at java.lang.Thread.run(Thread.java:745)
+
+Locked ownable synchronizers:
+- <0x000000078defb298> (a java.util.concurrent.ThreadPoolExecutor$Worker)
+
+"Thread-68" prio=10 tid=0x00007f21f401b000 nid=0x12d8 waiting for monitor entry [0x00007f216c7cc000]
+java.lang.Thread.State: BLOCKED (on object monitor)
+at com.ninefbank.smallpay.clear.writer.OuterReconWriter.saveReconData(OuterReconWriter.java:169)
+- waiting to lock <0x0000000788061c30> (a com.ninefbank.smallpay.clear.writer.OuterReconWriter)
+at com.ninefbank.smallpay.clear.tasklet.task.OuterReconWriterParallTask.call(OuterReconWriterParallTask.java:68)
+at com.ninefbank.smallpay.clear.tasklet.task.OuterReconWriterParallTask.call(OuterReconWriterParallTask.java:35)
+at java.util.concurrent.FutureTask.run(FutureTask.java:262)
+at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+at java.lang.Thread.run(Thread.java:745)
+
+Locked ownable synchronizers:
+- <0x000000078deec880> (a java.util.concurrent.ThreadPoolExecutor$Worker)
+从上述日志分析线程Thread-68、Thread-69都为阻塞状态，且阻塞状态
+
+smallpay.clear.writer.OuterReconWriter.saveReconData(OuterReconWriter.java:169)
+所对应的代码主要体现在对账结果写入部分，另外从日志
+
+- locked <0x0000000786f9a650> (a com.mysql.jdbc.JDBC4Connection)
+所以此时很容易觉得问题出现在连接池与MySQL数据库本身的问题上。按照这个思路（JVM日志很丰富，去伪存真，往往需要尝试与不断试错），开始了对连接池本身及MySQL本身问题的排查（Google），以下为几种Google结果链接及原因概述。
+
+1）、网络原因&MySQL设置&换连接池
+
+http://www. cnblogs.com/zhukunrong/ p/4525955.html
+
+http:// blog.csdn.net/cnhnnyzhy /article/details/50753025 
+
+在以上链接所述的原因中，重点是说了MySQL及网络方面的原因。针对这种叙述，与运维大哥沟通后调取了阿里云RDS MySQL实例的参数设置，如下： 
+
+show global variables like '%timeout%'
+最后一个参数wait_timeout表明Mysql服务器与客户端连接空闲自动断开的超时时间为24小时，也就是说只有连接在与MySQL服务器连接后24小时内无任何操作，MySQL服务器才会主动断开与客户端（这里为应用连接池中与MySQL数据库建立的连接），然而对于应用来说，这种可能性基本不存在，况且大多数连接池配置都有对连接是否可用以及自动探测连接的配置。
+
+查看应用连接池配置：
+
+<property name="timeBetweenEvictionRunsMillis" value="3000" />
+<property name="minEvictableIdleTimeMillis" value="300000" />
+<property name="validationQuery" value="SELECT 'x'" />
+<property name="testWhileIdle" value="true" />
+<property name="testOnBorrow" value="true" />
+<property name="testOnReturn" value="true" />
+<property name="poolPreparedStatements" value="false" />
+<property name="maxPoolPreparedStatementPerConnectionSize" value="-1" />
+按照上述配置基本上不会出现连接长时间与MySQL服务器无任何交互的可能性，除非连接池本身的处理存在问题（druid连接池为阿里高性能数据库连接池），但是出于怀疑的态度，按照链接中的说法druid在处理长时间连接等待方面可能不如c3p0好，也不排除druid本身存在问题。但出于谨慎角度，并没有立刻采用对连接池进行替换的措施，而是将焦点转移到应用服务器与MySQL服务器网络连接上（也确实有人是因为网络防火墙设置导致出现此类问题的）。
+
+2）、网络连接参数调整
+
+http:// m.blog.csdn.net/article /details?id=49018865
+
+http:// m.oschina.net/question/ 121401_47863
+
+由于阿里云底层网络结构并不对用户透明，且遇到问题的应用存在批量大数据插入的使用场景，确实是存在TCP缓冲区不够的可能性，通过对MySQL官方文档相关章节的阅读，MySQL连接串参数中确实提供了tcpRcvBuf这样的参数，其对该参数的说明是：“connecting using TCP/IP, should the driver set SO_RCV_BUF to the given value? The default value of '0', means use the platform default value for this property)”。
+
+于是觉得这种可能性会相对大些，所以在线上调整了连接参数而并没有更换连接池（如若不行，可再尝试替换连接池），参数调整如下： 
+
+jdbc:mysql://xxx.xxx.xx.xx:3306/xx?useUnicode=true&characterEncoding=UTF-8&tcpRcvBuf=1024000&autoReconnect=true&failOverReadOnly=false&connectTimeout=0
+连接TCP缓冲区的大小被调整为1M。
+
+对线程栈日志分析（2）
+
+在4中通过对网络连接参数的调整后，并没有起到作用，于是对线程栈日志再次进行了调取，并进行了地毯式阅读，终于发现了问题的症结：
+
+at com.ninefbank.smallpay.clear.service.impl.OrgSettleFlowServiceImpl$$EnhancerBySpringCGLIB$$5775a83.isExistOrgSettleFlow(<generated>)
+at com.ninefbank.smallpay.clear.util.FeeCountUtil.createOrgSettleFlow(FeeCountUtil.java:235)
+- locked <0x000000078b4d8e98> (a java.lang.Class for com.ninefbank.smallpay.clear.util.FeeCountUtil)
+at com.ninefbank.smallpay.clear.writer.OuterReconWriter.saveTaskErrorInfo(OuterReconWriter.java:126)
+- locked <0x00000007880399f0> (a com.ninefbank.smallpay.clear.writer.OuterReconWriter)
+at com.ninefbank.smallpay.clear.tasklet.task.OuterReconWriterParallTask.call(OuterReconWriterParallTask.java:70)
+at com.ninefbank.smallpay.clear.tasklet.task.OuterReconWriterParallTask.call(OuterReconWriterPara
+通过对比多日问题时段的线程栈日志，发现都存在两处代码都指向同一个方法，即isExistOrgSettleFlow，于是找到代码所对应的方法，发现是由于该方法高频访问了一个未加相关索引的大数据表，导致方法本身的执行存在阻塞及锁住的情况，占用了大量连接资源，从而导致4中所看到的其他方法拿不到数据库连接出现长时间等待，甚至超时的情况。加上索引后，隔日观察问题消失。
+
+总结
+
+对陌生问题的分析，需要通过各类分析手段从而找到问题所在并进行解决（这其中需要运用各类分析工具Linux命令、JDK命令、网络命令等等）；
+
+要心存思辨之心，对传统的权威的东西在敬畏的同时也要大胆的怀疑并进行分析、尝试，切不可畏惧不前；
+
+在编码方面，对代码类、方法的命名一定要合理、规范，不然日后出现疑难问题在排查时，会给人造成错觉从而延长解决时间;
+
+如果你想学好JAVA这门技术，也想在IT行业拿高薪，可以参加我们的训练营课程，选择最适合自己的课程学习，技术大牛亲授，8个月后，进入名企拿高薪。我们的课程内容有：Java工程化、高性能及分布式、高性能、深入浅出。高架构。性能调优、Spring，MyBatis，Netty源码分析和大数据等多个知识点。如果你想拿高薪的，想学习的，想就业前景好的，想跟别人竞争能取得优势的，想进阿里面试但担心面试不过的，你都可以来，q群号为：180705916 进群免费领取学习资料。
+--------------------- 
+作者：SJYUA 
+来源：CSDN 
+版权声明：本文为博主原创文章，转载请附上博文链接！
+
+https://blog.csdn.net/yexunce3159/article/details/86062278
