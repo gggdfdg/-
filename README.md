@@ -89,3 +89,5 @@ killpid----------------进程杀得方法
 mysql_error------------mysql出现at java.net.SocketInputStream.socketRead0(Native Method)，web和mysql的Tcp连接被断开的问题处理，可能是防火墙，或者web，或者连接池，或者缓冲池
 
 mysql_toMany-----------出现太多连接
+
+-bash-4.2$------------linux 命令行出现-bash-4.2$的解决办法
