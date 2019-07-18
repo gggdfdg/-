@@ -1,0 +1,83 @@
+1：安装完redis后
+# redis-server   //开启redis服务
+# redis-cli    //使用客户端连接
+redis> get mykey //获取我的密码
+“abc1233”   //返回的结果
+
+
+2：设置密码( 通过命令行来设置密码以及如何通过命令AUTH来进行密码的验证。重启服务以后密码失效。)
+# redis-cli
+redis> get mykey
+“abc1233” //返回的结果   我们还没有设置密码，所以这里不用验证就可以执行相应的命令
+redis> config set requirepass abc1233
+redis> get mykey
+(error) NOAUTH Authentication required. //错误信息
+redis> auth abc1233  // 通过auth命令 验证密码
+redis> get mykey
+“abc1233”   //这里我们看，是不是又能得到我想要的结果了
+
+
+3:在redis.conf配置文件中添加密码(永久生效)
+在redis.conf中添加密码。其实很简单，
+在Redis根目录下面存在redis.conf文件，
+进入Redis根目录，使用vim 编辑该文件。
+并且查找 requirepass，定位到这一行，并且将前面的#去掉，修改密码。部分内容如下：
+requirepass abc1233
+
+
+4:启动redis服务
+# redis-server /redis.conf     所在目录/redis.conf
+
+
+5：常用命令
+
+SELECT 1 切换数据库
+DBSIZE   查看当前数据库key的数量
+FLUSHDB  清空当前库记录
+FLUSHALL 清空所有库的记录
+move key db 将某键值对移动到某db中去
+del key 删除某key
+ttl time-to-live 
+EXPIRE key second 为key设置过期时间, 过期了值会被移除
+        返回值-1 代表一直存在,
+        -2代表已过期
+k-v:
+get key  获取值
+set key value 设置值, 如key存在, 则覆盖其值
+type key 获取其类型
+setnx key value 如果不存在, 则set值, 存在则不操作
+setex key time value 设置会过期的值
+ 
+list:
+LPUSH key values
+LRANGE key values 输出集合的值
+RPOPLPUSH
+ 
+set:
+sadd key    入栈
+spop key    出栈
+srandmember key count  随机出数
+sdiff key1 key2 差集  在第一个集合里面, 不在第二个集合里面
+sinter key1 key2 交集
+sunion key1 key2 合集
+ 
+hash:
+hset
+hget
+hkeys
+hvals
+hmset
+hmget
+ 
+Zset(sorted set):
+zadd 添加元素
+zrange key start top 返回start到top位置的元素
+zrange key start top withscores 返回keys vals
+zrangebyscore key score1 score2
+zrangebyscore key score1 (score2 不包括score2
+zrangebyscore key score1 score2 limit 2 2 从第2位开始截取2个元素
+zrem key score 删除元素
+zcard key 返回元素个数
+zrank key score  获取下标
+zrevrank key score 逆序获取某元素的下标值
+zrevrange key 0 -1 逆序获得下标值
