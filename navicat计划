@@ -1,0 +1,46 @@
+【SQL】使用Navicat创建MySQL定时任务重复执行某个sql语句
+一.首先在查询中新建一个存储过程
+大致语法为：
+
+CREATE PROCEDURE func()
+BEGIN
+/*
+需要执行的sql语句
+*/
+END
+我的示例为:
+然后保存为该查询为update_temper1
+二.使用Navicat创建一个事件
+点击Navicat的事件->新建事件
+在定义中调用之前保存的存储过程CALL func()
+然后设置计划，也就是设置执行周期和事件
+然后保存为update_temper1_Event即可，事件就会开始执行
+注：如何查看SQL时候开启事件功能及事件的常用指令
+以MySQL为例
+此时进入SQL的命令列
+1、首先，必须确认mysql是否开启了定时任务
+查看event是否开启 : SHOWVARIABLES LIKE '%event_sche%';
+mysql> SHOW VARIABLES LIKE '%event_sche%';
++----------------+-------+
+| Variable_name   | Value |
++----------------+-------+
+| event_scheduler | ON   |
++----------------+-------+
+1 row in set (0.08 sec)
+mysql> 
+将事件计划开启 :set global event_scheduler =1;//参数说明（0或off为关闭，1或on为开启）
+mysql> set global event_scheduler =1;
+Query OK, 0 rows affected (0.06 sec)
+mysql> 
+2、对于Event的常用操作（新建查询页面）：
+查看：SHOW EVENTS;
+开启事件：
+ALTER EVENT update_temper1_Event ON COMPLETION PRESERVE ENABLE;
+关闭事件：
+ALTER EVENT update_temper1_Event ON COMPLETION PRESERVE DISABLE;
+删除事件：DROP EVENT IF EXISTS update_temper1_Event;
+--------------------- 
+作者：尽管叫我疯子 
+来源：CSDN 
+原文：https://blog.csdn.net/Robin_hc/article/details/85264967 
+版权声明：本文为博主原创文章，转载请附上博文链接！
