@@ -93,3 +93,5 @@ mysql_toMany-----------出现太多连接
 -bash-4.2$------------linux 命令行出现-bash-4.2$的解决办法
 
 redis -----------------linux安装启动redis
+
+navicat计划------------------navicat计划任务，定时执行
