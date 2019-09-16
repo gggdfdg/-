@@ -47,6 +47,8 @@ $
 15：用SecureCRT连接192.168.99.100
 用户名：docker 
 密码： tcuser
+用户名2：root
+切换：command：sudo -i (docker用户下执行)
 16：虚拟机的默认存储位置是C:\Users\Administrator\.docker\machine\machines ，后期docke镜像文件会不断增加，为了给系统盘减负，最好将磁盘移动到其他位置。（每个电脑不一定都是Administrator，除了管理员账号登陆）
 17：首先通过PowerShell或cmd终端中执行【docker-machine stop default】命令停止default虚拟机，docker-machine.exe在你的DockerToolbox里面目录下
 18：停止后SecureCRT也会断开连接了
