@@ -1,0 +1,15 @@
+1：iptables -t nat -A PREROUTING -p tcp -m tcp --dport 9000 -j DNAT --to-destination 172.17.0.2:9000
+将9000的虚拟机端口，映射到docker容器（ip为172.17.0.2）的端口上，这样访问http://192.168.99.100:9000就可以访问到docker容器（ip为172.17.0.2）的9000端口了
+2：容器ip查询
+进入容器内部后（exec -it centos /bin/bash）
+cat /etc/hosts,可以看到一串ip，就是该容器的ip
+3：Centos7 firewall开放3306端口
+firewall-cmd --zone=public --add-port=3306/tcp --permanent（开放）
+firewall-cmd --reload（重启）
+firewall-cmd --query-port=3306/tcp（查询）
+4：端口转发
+firewall-cmd --permanent --zone=public --add-forward-port=port=8021:proto=tcp:toaddr=192.168.160.34:toport=8021
+5：docker虚拟机，不是容器，可以通过如下命令，查询开放的虚拟机端口映射（虚拟机端口映射到容器的端口）
+docker port 容器名
+6：docker虚拟机，不是容器，可以通过如下命令，查询容器的内部ip，方便1命令开放端口映射
+docker inspect 容器名|grep IPAddress
