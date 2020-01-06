@@ -97,3 +97,5 @@ redis -----------------linux安装启动redis
 navicat计划------------------navicat计划任务，定时执行
 
 ExecutorService.md------------java线程池解析
+
+socket_bytes----------------socket传输类型，与或运算左移，右移
