@@ -1,9 +1,21 @@
-输入这两句话，然后关闭终端，重新登录一下就好了
+P:问题描述：
 
-cp /etc/skel/.bashrc /root/
+如果终端或者secureCRT出现了如下情况
+[-bash-4.2$]# xx
+[-bash-4.2$]# zz
 
-cp /etc/skel/.bash_profile /root/
+R:问题解决步骤：
 
-同样的方法，如果是非root而是某用户，就把目标路径换成相对应的用户路径即可。
+1：输入这两句话：
+[-bash-4.2$]# cp /etc/skel/.bashrc /root/
+[-bash-4.2$]# cp /etc/skel/.bash_profile /root/
+2：然后关闭终端，重新登录一下，出现如下用户名
+[root@81d59c4b2848 gameServer]#
 
-这两个文件通常在建立用户目录是自动添加，如果是你手动创建文件夹在/etc/passwd指定目录也会出现该错误。
+E:同理可得：
+同样的方法，如果是非root而是某用户，就把目标路径换成相对应的用户(gggdfdg)路径即可。
+[-bash-4.2$]# cp /etc/skel/.bashrc /gggdfdg/
+[-bash-4.2$]# cp /etc/skel/.bash_profile /gggdfdg/
+
+C:总结：
+.bashrc和.bash_profile两个文件通常在建立用户目录是自动添加，如果是你手动创建文件夹在/etc/passwd指定目录也会出现该错误。
