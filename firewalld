@@ -1,1 +1,9 @@
 
+# 开启6379
+/sbin/iptables -I INPUT -p tcp --dport 6379 -j ACCEPT
+# 开启6380
+/sbin/iptables -I INPUT -p tcp --dport 6380 -j ACCEPT
+# 保存
+/etc/rc.d/init.d/iptables save
+# centos 7下执行
+service iptables save
