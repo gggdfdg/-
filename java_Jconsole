@@ -1,0 +1,5 @@
+cmd输入jconsole或者JDK/bin 目录下面的jconsole.exe 即可启动
+介绍：
+
+JConsole 基本包括以下基本功能：概述、内存、线程、类、VM概要、MBean
+参考本文https://blog.csdn.net/qq_31156277/article/details/80035430
