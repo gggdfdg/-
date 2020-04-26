@@ -14,3 +14,6 @@ shirt+向下复制
 end光标移动到尾巴
 home光标移动到起始位置
 万能的go to（ctrl+n，declaration跳动声明的类的该方法，implementations跳到实现该方法的类中，Test subject跳到测试的本类，Test跳到本类的测试类）
+ctrl+tab切换页面
+ctrl+alt+h查询引用堆栈，
+crrl+g查看调用
