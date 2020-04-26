@@ -9,6 +9,7 @@ ctrl+alt+o删除不用的引用
 alt+向下箭头将本方法放到下一个方法后面
 ctrl+F2听到启动的测试类
 ctrl+shirt+F10启动测试类
+ctrl+shirt+F9重新编译整个类
 shirt+向下复制
 end光标移动到尾巴
 home光标移动到起始位置
