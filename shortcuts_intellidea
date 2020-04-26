@@ -1,0 +1,14 @@
+idea的快捷键
+ctrl+shirt+p在方法或者lamda表达式头尾跳动
+ctrl+alt+箭头向下，复制本行代码到下一行
+ctrl+delete删除光标后面的单词
+ctrl+delete删除光标后的所有字符
+ctrl+n打开快捷面板
+ctrl+alt+b跳动到方法实现地方
+ctrl+alt+o删除不用的引用
+alt+向下箭头将本方法放到下一个方法后面
+ctrl+F2听到启动的测试类
+ctrl+shirt+F10启动测试类
+shirt+向下复制
+end光标移动到尾巴
+home光标移动到起始位置
