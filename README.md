@@ -109,3 +109,5 @@ firewalld-------------------防火
 java_Jconsole------------java内存，死锁等监控
 
 shortcuts_intellidea------------------快捷键idea
+
+rocketMQ集群-------------------集群的使用（阿里）
