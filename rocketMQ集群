@@ -59,7 +59,9 @@ namesrvAddr=rocketmq-nameserver1:9876;rocketmq-nameserver2:9876
 
 -----------------开放端口------------------------------
 netsh interface portproxy show all将9876和10911开放
-
+----------------映射docker端口------------------------------
+iptables -t nat -A PREROUTING -p tcp -m tcp --dport 9876 -j DNAT --to-destination 172.17.0.2:9876
+iptables -t nat -A PREROUTING -p tcp -m tcp --dport 10911 -j DNAT --to-destination 172.17.0.2:10911
 
 -----------------安装MQ控制台------------------------------
 参考https://blog.csdn.net/chengyabingfeiqi/article/details/106502390
