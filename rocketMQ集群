@@ -1,0 +1,65 @@
+--------------认知MQ----------------------
+1：RMQ（中间件）几个重要角色？
+NameServer：名称服务，这是RMQ的一个重点，他是一个几乎无状态的节点，可集群部署，节点之间无任何信息同步，这里可以充当ZK协调集群的作用；（服务发现者）
+
+Broker：Broker消息中转角色，主要负责消息的存储转发，Broker分为Master(生产机)和Slave（消费机），一个Master对应多个Slave，但是一个Slave只能对应一个Master，Master和Slave之间通过指定相同的BrokerName和不同的BrokerId来确定主从关系，id为0的就是Master，非0就是Slave，Master也可以部署多个，每个Broker与NameServer集群中的所有节点建立长连接，定时注册Topic到NameServer上；
+
+Topic：主题频道，用于生产者和消费者进行消息交流的媒介，生产者将消息发送到指定Topic上，消费者订阅该Topic（生产环境下一般都是消费者先订阅，生产者后生产），RMQ以推的形式主动将消息推给消费者消费；
+
+2：RMQ的集群模式？
+
+RMQ的集群模式主要有3种：单Master模式，多Master模式，多Master多Slave模式。
+
+单Master模式：顾名思义，只有一台MQ服务器，即一台Broker，这种模式风险比较大，一旦broker宕机或者重启就会导致整个MQ服务不可用；
+
+多Master模式：一个无Slave的MQ集群，集群中只有Master，这样即使其中一台Broker宕机，不会影响整个MQ服务，MQ服务还是可用的，但是宕机的这台Broker上的消息就无法被消费了，当这台Broker重启之后，会重新加入集群消费会被消费掉，所以这种模式可能会存在消息不实时消费的情况，但是消息是不会丢失的；
+
+多Master多Slave模式：一个既有Master又有Slave的集群模式，这种模式能保证消息的实时消费，当Master宕机时，消息还可以从该Master对应的Slave上进行消费，所以这里存在一个问题，就是Master和Slave消息数据的同步问题，主要有2种同步方案可选，一种是同步双写（生产者将消息发送给MQ时，同时向Master和Slave发送，当2台broker同时返回成功才认为消息发送成功），另一种是异步复制（生产者将消息发送到Master上，然后Slave异步去复制Master的消息，这种会存在少量消息丢失）
+
+
+-----------------安装MQ------------------------------
+1：每台机器上都需要安装RMQ，上传压缩包，可以直接官网下载最新版（最新版最低要求JDK8），参考：
+http://rocketmq.apache.org/docs/quick-start/进行安装：
+
+2：https://mirror.bit.edu.cn/apache/rocketmq/4.7.1/rocketmq-all-4.7.1-bin-release.zip本地下载
+3：rz上传到linux
+4：unzip rocketmq-all-4.7.1-source-release.zip
+5：cd rocketmq-all-4.7.1/
+6：cd conf
+7：conf里面有2m-2s-async(异步多master多slave模式)，2m-2s-sync（同步多master多slaver模式），2m-noslave（多master无slaver模式），broker.conf（单master模式）
+8：我们用2m-noslaver模式搭建
+9：cd 2m-noslave
+10：vim broker-b.properties
+11：新增brokerIP1=192.168.99.100（本机ip，防止docker的ip是127.0.102.7这种访问不到的地址）代表，broker机器的访问地址，并:wq保存
+12：
+（这是配置集群用的讲解）
+# brokerClusterName这里一定要相同，这是集群的名字，配置一样，才能在一个集群中
+brokerClusterName=rocketmq-cluster
+# 这个是broker的名字，每个配置文件写自己的名字
+brokerName=broker-a
+# 这个是broker的ID，0代表Master，>0代表Slave
+brokerId=0
+# 这个就是我们之前配置的nameserver，这里你需要哪几个机器作为Master就配置几个机器的nameserver服务吧
+namesrvAddr=rocketmq-nameserver1:9876;rocketmq-nameserver2:9876
+
+13：同里vim broker-a.properties
+14：接下来配置启动nameServer和broker参数
+15：cd bin
+16: vim runbroker.sh
+17: 修改JAVA_OPT="${JAVA_OPT} -server -Xms512m -Xmx512m -Xmn256m"(降低使用内存，防止启动时候报错)
+18: vim runserver.sh
+19: 修改JAVA_OPT="${JAVA_OPT} -server -Xms512m -Xmx512m -Xmn256m"(降低使用内存，防止启动时候报错)
+20: 启动nameserver
+21：nohup sh bin/mqnamesrv &
+22：启动broker
+23：nohup sh mqbroker -c /rocketmq/conf/2m-noslave/broker-b.properties -n localhost:9876 & 
+23：nohup sh mqbroker -c /rocketmq/conf/2m-noslave/broker-a.properties -n localhost:9877 & 
+24： 启动成功与否可以通过/root/logs/rocketmqlogs查看日志
+25：OK，到此为止，其实RMQ多Master集群就搭建起来了，接下来我们还需要做的就是RMQ的控制台
+
+-----------------开放端口------------------------------
+netsh interface portproxy show all将9876和10911开放
+
+
+-----------------安装MQ控制台------------------------------
+参考https://blog.csdn.net/chengyabingfeiqi/article/details/106502390
