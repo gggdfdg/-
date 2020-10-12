@@ -57,8 +57,9 @@ namesrvAddr=rocketmq-nameserver1:9876;rocketmq-nameserver2:9876
 24： 启动成功与否可以通过/root/logs/rocketmqlogs查看日志
 25：OK，到此为止，其实RMQ多Master集群就搭建起来了，接下来我们还需要做的就是RMQ的控制台
 
------------------开放端口------------------------------
-netsh interface portproxy show all将9876和10911开放
+-----------------开放端口和转发端口------------------------------
+netsh  interface portproxy add v4tov4 listenaddress=192.168.100.162 listenport=9876 connectaddress=192.168.99.100 connectport=9876
+netsh  interface portproxy add v4tov4 listenaddress=192.168.100.162 listenport=10911 connectaddress=192.168.99.100 connectport=10911
 ----------------映射docker端口------------------------------
 iptables -t nat -A PREROUTING -p tcp -m tcp --dport 9876 -j DNAT --to-destination 172.17.0.2:9876
 iptables -t nat -A PREROUTING -p tcp -m tcp --dport 10911 -j DNAT --to-destination 172.17.0.2:10911
