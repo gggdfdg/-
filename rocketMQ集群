@@ -52,8 +52,8 @@ namesrvAddr=rocketmq-nameserver1:9876;rocketmq-nameserver2:9876
 20: 启动nameserver
 21：nohup sh bin/mqnamesrv &
 22：启动broker
-23：nohup sh mqbroker -c /rocketmq/conf/2m-noslave/broker-b.properties -n localhost:9876 & 
-23：nohup sh mqbroker -c /rocketmq/conf/2m-noslave/broker-a.properties -n localhost:9877 & 
+23：nohup sh mqbroker -c /rocketmq/conf/2m-noslave/broker-b.properties -n localhost:9876 autoCreateTopicEnable=true & 
+23：nohup sh mqbroker -c /rocketmq/conf/2m-noslave/broker-a.properties -n localhost:9877 autoCreateTopicEnable=true & 
 24： 启动成功与否可以通过/root/logs/rocketmqlogs查看日志
 25：OK，到此为止，其实RMQ多Master集群就搭建起来了，接下来我们还需要做的就是RMQ的控制台
 
