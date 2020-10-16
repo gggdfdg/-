@@ -106,7 +106,7 @@ docker_space----------------linux磁盘满了，排查大文件
 
 firewalld-------------------防火
 
-java_Jconsole------------java内存，死锁等监控
+java_Jconsole_jstake------------java内存，死锁等监控
 
 shortcuts_intellidea------------------快捷键idea
 
