@@ -113,3 +113,5 @@ shortcuts_intellidea------------------快捷键idea
 rocketMQ集群-------------------集群的使用（阿里）
 
 find&search-------------------查询命令
+
+移除python-------------------进行python的删除
