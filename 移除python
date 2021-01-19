@@ -18,6 +18,8 @@ cd Python-3.10.0a4/
 make
 make install
 
+python3 -V
+
 
 
 
