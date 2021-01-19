@@ -1,0 +1,9 @@
+首先强制删除已安装的程序及其关联
+[root@spider1 bin]# rpm -qa|grep python|xargs rpm -ev --allmatches --nodeps
+
+然后删除所有残余文件
+xargs表示允许你对输出执行其他某些命令
+[root@spider1 bin]# whereis python |xargs rm -frv
+
+最后验证删除结果，返回无结果表示完全删除
+[root@spider1 bin]# whereis python
